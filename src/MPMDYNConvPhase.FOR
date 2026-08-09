@@ -421,7 +421,7 @@
              do I = 1, Counters%N
                  
                  ! FEM and Generalized Alpha Scheme 
-                 if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch == .TRUE.) .AND. (CalParams%TimeStep /= 1) ) then 
+                 if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.) .AND. (CalParams%TimeStep /= 1) ) then 
                      
                      TotalVelocitySoil(I, IEntity) = TotalVelocitySoil(I, IEntity) + &
                          ( CalParams%TimeIncrement * (CalParams%ApplyGeneralizedAlphaTimeScheme%Gamma*AccelerationSoil(I, IEntity) + &
@@ -1083,7 +1083,7 @@
        
        
       
-       if ((CalParams%ApplyFixedSolidSkeleton == .false.).and.(CalParams%PrescribedHead%HydraulicHead == .true.)) then
+       if ((CalParams%ApplyFixedSolidSkeleton .eqv. .false.).and.(CalParams%PrescribedHead%HydraulicHead .eqv. .true.)) then
            HydraulicHeadLoadedElemID = .false.
            call GetAndUpdateHydraulicHeadLoad(HydraulicHeadLoadedElemID, LoadedSides, HydraulicHeadNodesConnectivities, HydraulicHeadLoad)
            Counters%HydraulicHeadSides = LoadedSides
@@ -1850,7 +1850,7 @@
                     ParticleAcceleration(I) = ParticleAcceleration(I) + ( ParticleShape(INode) * NodAcc(I, INode, iEntity) )
                     
                     ! Particle velocity
-                    if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch == .TRUE.) .and. (CalParams%TimeStep /=1) ) then 
+                    if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.) .and. (CalParams%TimeStep /=1) ) then 
                     
                         !Mapping the particle velocity using the generalized alpha time scheme
                         ParticleIncrementalVelocity(I) = ParticleIncrementalVelocity(I) + &
@@ -4633,7 +4633,7 @@
           do IDOF = 1, Counters%N       !Loop over all degrees of freedom
             do J = 1,Counters%nEntity   !loop over all entities
                 
-                if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch == .TRUE.) .AND. (.not.IsMPMComputation()) .AND. (CalParams%TimeStep /= 1) ) then ! FEM with Generalized Alpha scheme 
+                if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.) .AND. (.not.IsMPMComputation()) .AND. (CalParams%TimeStep /= 1) ) then ! FEM with Generalized Alpha scheme 
                     NodalIncDisplacement(IDOF,J) = & !NodalIncDisplacement(IDOF,J) + &
                                              (NodalVelocities(IDOF,J)*CalParams%TimeIncrement) + &
                                              ( (CalParams%TimeIncrement**2) * &

@@ -1,0 +1,3 @@
+/Users/abdelrahmanalsardi/Projects/Anura3D/build16/CMakeFiles/Anura3D.dir
+/Users/abdelrahmanalsardi/Projects/Anura3D/build16/CMakeFiles/edit_cache.dir
+/Users/abdelrahmanalsardi/Projects/Anura3D/build16/CMakeFiles/rebuild_cache.dir

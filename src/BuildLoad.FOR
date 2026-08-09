@@ -73,7 +73,7 @@
       do IPatch = 1, Counters%NPatches ! loop over patches       
           do ILoadSystem = 1, NURBS%NLoadSystems_Traction(IPatch) ! loop over load systems
         
-        if (((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) .or. (Counters%NLoadedElementSidesWater(ILoadSystem,IPatch) > 0)) then ! liquid
+        if (((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) .or. (Counters%NLoadedElementSidesWater(ILoadSystem,IPatch) > 0)) then ! liquid
         !just temporary: need to find a different condition
           call InitialiseTractionLoadVector(LOADTYPE_LIQUID, ILoadSystem, IPatch)  
           if (NDIM == 3) call RotVec(IRotation, NRotNodes, RotMat, ReducedDof, ExtLoadVectorwater, ExtLoadVectorWater) ! 3D function, only if IS3DCYLINDRIC=.true.
@@ -382,7 +382,7 @@
        ! Hydraulic head on NODES
           
           
-        !  if ((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
+        !  if ((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
         !      
         !      call GetAndUpdateHydraulicHeadLoad(HydraulicHeadLoadedElemID, LoadedSides, HydraulicHeadNodesConnectivities, HydraulicHeadLoad)
         !      Counters%HydraulicHeadSides = LoadedSides

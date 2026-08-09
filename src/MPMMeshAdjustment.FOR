@@ -142,7 +142,7 @@
               
             else if (CalParams%ApplyContactAlgorithm.and.CalParams%ApplyContactMeshBoundary) then ! need to make sure this works with the contact algorithm
               CalParams%MovingMesh%NStructureNodes(IPatch) = NInterfaceNodes
-              allocate(CalParams%MovingMesh%StructureNodes(CalParams%MovingMesh%NStructureNodes(IPatch), Counters%NPatches), stat = IError)
+              allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%StructureNodes(CalParams%MovingMesh%NStructureNodes(IPatch), Counters%NPatches), stat = IError)
               I = 1
               !do IPatch = 1, Counters%NPatches ! loop over patches
               do INode = 1, Counters%NodTot(IPatch)!Counters%NodTot
@@ -1068,7 +1068,7 @@
           !count = CalParams%MovingMesh%NStructureNodes
           
           if (.not. allocated(CalParams%MovingMesh%StructureNodes) ) then !--> this needs generalization 
-              allocate( CalParams%MovingMesh%StructureNodes(count, Counters%NPatches), stat = IError) ! allocate structured nodes so that we can store the local ID of each node 
+              allocate( integer(INTEGER_TYPE) :: CalParams%MovingMesh%StructureNodes(count, Counters%NPatches), stat = IError) ! allocate structured nodes so that we can store the local ID of each node 
           end if 
           
           CalParams%MovingMesh%StructureNodes(:,IPatch) = 0 ! initialize numbering

@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soil–water–structure interaction using the material point method (MPM)
+    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -210,9 +210,9 @@
           real(REAL_TYPE), dimension(:,:, :), allocatable :: NodalPrescribedVelocityValue ! Prescribed velocity at the nodes ! added a rank for multipatch generalization
           real(REAL_TYPE), dimension(:,:, :), allocatable :: NodalPrescribedVelocityDirection ! 0/1 prescribed direction ! added a rank for multipatch generalization
           real(REAL_TYPE) :: FileMultiplier = 0
-          character(len=255) :: FileNamePrescribedVelocity = ''
+          character(len=255) :: FileNamePrescribedVelocity ! default '' set after CalParams allocation (gfortran workaround)
           integer(INTEGER_TYPE) :: PrescribedVelocityFileNumberOfLines = 0 
-          character(len=255) :: FilePrescribedVelocitySwitch = 'off' ! on/off file switch 
+          character(len=255) :: FilePrescribedVelocitySwitch ! on/off file switch; default 'off' set after CalParams allocation (gfortran workaround)
           real(REAL_TYPE), allocatable, dimension(:) :: TransientBoundaryConditionStaringTime ! Start time of the transient boundary condition
         
         end type PrescribedVeloType
@@ -237,7 +237,7 @@
          type HydraulicHeadType
           logical :: HydraulicHead  = .false.
           !real(REAL_TYPE) :: FileMultiplier = 0
-          character(len=255) :: FileNameHydraulicHead = 'X'
+          character(len=255) :: FileNameHydraulicHead ! default 'X' set after CalParams allocation (gfortran workaround)
           integer(INTEGER_TYPE) :: HydraulicHeadFileNumberOfLines = 0
           
          end type HydraulicHeadType
@@ -628,13 +628,13 @@
                         !ApplyBBar= .false.,&
                      
 
-          character(len=64) :: CPSversion = 'not defined'
-          character(len=64) :: GOMversion = 'not defined'
-          character(len=8) :: StartDate = 'N/A' ! starting date of calculation of current load step
-          character(len=8) :: EndDate = 'N/A' ! ending date of calculation of current load step
-          character(len=10) :: StartTime = 'N/A' ! starting time of calculation of current load step
-          character(len=10) :: EndTime = 'N/A' ! ending time of calculation of current load step
-          character(len=24) :: Visualization = 'N/A' ! type of visualization
+          character(len=64) :: CPSversion ! default 'not defined' set after CalParams allocation (gfortran workaround)
+          character(len=64) :: GOMversion ! default 'not defined' set after CalParams allocation (gfortran workaround)
+          character(len=8) :: StartDate ! starting date of calculation of current load step; default 'N/A' set after CalParams allocation (gfortran workaround)
+          character(len=8) :: EndDate ! ending date of calculation of current load step; default 'N/A' set after CalParams allocation (gfortran workaround)
+          character(len=10) :: StartTime ! starting time of calculation of current load step; default 'N/A' set after CalParams allocation (gfortran workaround)
+          character(len=10) :: EndTime ! ending time of calculation of current load step; default 'N/A' set after CalParams allocation (gfortran workaround)
+          character(len=24) :: Visualization ! type of visualization; default 'N/A' set after CalParams allocation (gfortran workaround)
      
         end type CalParamType
 
@@ -885,9 +885,23 @@
        !**********************************************************************
        
        implicit none
-       
+
        ! allocate main CalParams structure
-       allocate(CalParamType(NVECTOR, NDIM)::CalParams)
+       allocate(CalParamType(NVECTOR, NDIM) :: CalParams)
+
+       ! Former default initializers of character components, moved here from
+       ! the type definition: gfortran-16 crashes allocating a PDT whose type
+       ! has character components with default values.
+       CalParams%CPSversion = 'not defined'
+       CalParams%GOMversion = 'not defined'
+       CalParams%StartDate = 'N/A'
+       CalParams%EndDate = 'N/A'
+       CalParams%StartTime = 'N/A'
+       CalParams%EndTime = 'N/A'
+       CalParams%Visualization = 'N/A'
+       CalParams%PrescribedVelo%FileNamePrescribedVelocity = ''
+       CalParams%PrescribedVelo%FilePrescribedVelocitySwitch = 'off'
+       CalParams%PrescribedHead%FileNameHydraulicHead = 'X'
        
        ! Set Default Parameters
        
@@ -2924,7 +2938,7 @@
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! START: READING VELOCITY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
         ! Open Prescribed Velocity File 
-        if ((CalParams%PrescribedVelo%ApplyPrescribedVelo == .true.) &
+        if ((CalParams%PrescribedVelo%ApplyPrescribedVelo .eqv. .true.) &
             .and. (CalParams%Multipliers%VelocitySolidLoadType == LOAD_TYPE_FILE)) then 
             
             ! Prepare file name for opening
@@ -2959,7 +2973,7 @@
                 allocate (PrescribedVelocityFileMatrix(CalParams%PrescribedVelo%PrescribedVelocityFileNumberOfLines,2)) ! Allocate the size of the matrix (specifying 2 columns)
 
                 do ii = 1,CalParams%PrescribedVelo%PrescribedVelocityFileNumberOfLines
-                    read(PVFunit,*,iostat=ios) (PrescribedVelocityFileMatrix(ii,1),PrescribedVelocityFileMatrix(ii,2))
+                    read(PVFunit,*,iostat=ios) PrescribedVelocityFileMatrix(ii,1),PrescribedVelocityFileMatrix(ii,2)
                 end do 
                 close(PVFunit)
             end if 
@@ -3293,13 +3307,12 @@
         !!!!!!!! START: GET PRESCRIBED VELOCITY FROM FILE FOR OVERALL REAL TIME !!!!!!!!
  
         ! Prescribed velocity for the particular timestep
-        if ((CalParams%PrescribedVelo%ApplyPrescribedVelo == .true.) &
+        if ((CalParams%PrescribedVelo%ApplyPrescribedVelo .eqv. .true.) &
             .and. (CalParams%Multipliers%VelocitySolidLoadType == LOAD_TYPE_FILE)) then
         
             ! Record the start time of the application of the transient boundary condition
             if( .not. allocated(CalParams%PrescribedVelo%TransientBoundaryConditionStaringTime)) then
-                allocate(CalParams%PrescribedVelo%TransientBoundaryConditionStaringTime(1)) ! Allocate the size of the matrix (specifying 2 columns)
-                CalParams%PrescribedVelo%TransientBoundaryConditionStaringTime = CalParams%OverallRealTime
+                allocate(CalParams%PrescribedVelo%TransientBoundaryConditionStaringTime(1), source=[CalParams%OverallRealTime]) ! Allocate the size of the matrix (specifying 2 columns)
                 
                 do ii=1,CalParams%PrescribedVelo%PrescribedVelocityFileNumberOfLines
                     !Correcting the starting time of the data read from file (hardcoded to 1D prescribed boundary condition) 
@@ -3380,7 +3393,7 @@
         
 
         
-        if ((CalParams%PrescribedHead%HydraulicHead == .false.) .and. (.not.(CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE))) RETURN
+        if ((CalParams%PrescribedHead%HydraulicHead .eqv. .false.) .and. (.not.(CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE))) RETURN
         
         ! Prepare file name for opening
         FileName = trim(CalParams%FileNames%ProjectName)//HYDRAULICHEAD_FILE_EXTENSION ! 
@@ -3405,7 +3418,7 @@
           allocate (HydraulicHeadFileMatrix(NumberOfLines,2), stat = IError) !allocate the size of the matrix (specifying 2 columns for 1D shaking)
           HydraulicHeadFileMatrix = 0.0
           do ii = 1, NumberOfLines
-             read(HHBFUnit, *, iostat=ios) (HydraulicHeadFileMatrix(ii,1), HydraulicHeadFileMatrix(ii,2))
+             read(HHBFUnit, *, iostat=ios) HydraulicHeadFileMatrix(ii,1), HydraulicHeadFileMatrix(ii,2)
           end do 
           close(HHBFUnit)
         end if      
@@ -3436,7 +3449,7 @@
         !!!!!!!! START: GET HYDRAULIC HEAD FROM FILE FOR OVERALL REAL TIME !!!!!!!!
         
         ! Hydaulic head for the particular timestep
-        if ((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
+        if ((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
              
         
         LastRow = CalParams%PrescribedHead%HydraulicHeadFileNumberOfLines
@@ -3861,7 +3874,7 @@
           close(TMP_UNIT)
 
   101     format(A)
-  102     format(A, I)
+  102     format(A, I10)
         
         end subroutine WriteGIPFile
 
@@ -4141,17 +4154,17 @@
 
           select case (ndim)
             case(1) 
-              if (valueL(1)) write(unit, '(A2, F)', iostat=ios) ' 1', valueR(1)
-              if (.not.valueL(1)) write(unit, '(A2, F)', iostat=ios) ' 0', valueR(1)
+              if (valueL(1)) write(unit, '(A2, F12.6)', iostat=ios) ' 1', valueR(1)
+              if (.not.valueL(1)) write(unit, '(A2, F12.6)', iostat=ios) ' 0', valueR(1)
             case(2) 
-              if (valueL(1)) write(unit, '(A2, 2F)', iostat=ios) ' 1', valueR(1), valueR(2)
-              if (.not.valueL(1)) write(unit, '(A2, 2F)', iostat=ios) ' 0', valueR(1), valueR(2)
+              if (valueL(1)) write(unit, '(A2, 2F12.6)', iostat=ios) ' 1', valueR(1), valueR(2)
+              if (.not.valueL(1)) write(unit, '(A2, 2F12.6)', iostat=ios) ' 0', valueR(1), valueR(2)
             case(3) 
-              if (valueL(1)) write(unit, '(A2, 3F)', iostat=ios) ' 1', valueR(1), valueR(2), valueR(3)
-              if (.not.valueL(1)) write(unit, '(A2, 3F)', iostat=ios) ' 0', valueR(1), valueR(2), valueR(3)
+              if (valueL(1)) write(unit, '(A2, 3F12.6)', iostat=ios) ' 1', valueR(1), valueR(2), valueR(3)
+              if (.not.valueL(1)) write(unit, '(A2, 3F12.6)', iostat=ios) ' 0', valueR(1), valueR(2), valueR(3)
             case(4) 
-              if (valueL(1)) write(unit, '(A2, 4F)', iostat=ios) ' 1', valueR(1), valueR(2), valueR(3), valueR(4)
-              if (.not.valueL(1)) write(unit, '(A2, 4F)', iostat=ios) ' 0', valueR(1), valueR(2), valueR(3), valueR(4)
+              if (valueL(1)) write(unit, '(A2, 4F12.6)', iostat=ios) ' 1', valueR(1), valueR(2), valueR(3), valueR(4)
+              if (.not.valueL(1)) write(unit, '(A2, 4F12.6)', iostat=ios) ' 0', valueR(1), valueR(2), valueR(3), valueR(4)
             case default
               call GiveError('CPS file: Writing logic and real value not possible. Wrong dimension.')
           end select
@@ -4191,41 +4204,36 @@
 
           select case (ndim)
             case(1) 
-              if (valueL(1)) write(unit, '(A2, I)', iostat=ios) ' 1', valueI(1)
-              if (.not.valueL(1)) write(unit, '(A2, I)', iostat=ios) ' 0', valueI(1)
+              if (valueL(1)) write(unit, '(A2, I10)', iostat=ios) ' 1', valueI(1)
+              if (.not.valueL(1)) write(unit, '(A2, I10)', iostat=ios) ' 0', valueI(1)
             case(2) 
-              if (valueL(1)) write(unit, '(A2, 2I)', iostat=ios) ' 1', valueI(1), valueI(2)
-              if (.not.valueL(1)) write(unit, '(A2, 2I)', iostat=ios) ' 0', valueI(1), valueI(2)
+              if (valueL(1)) write(unit, '(A2, 2I10)', iostat=ios) ' 1', valueI(1), valueI(2)
+              if (.not.valueL(1)) write(unit, '(A2, 2I10)', iostat=ios) ' 0', valueI(1), valueI(2)
             case(3) 
-              if (valueL(1)) write(unit, '(A2, 3I)', iostat=ios) ' 1', valueI(1), valueI(2), valueI(3)
-              if (.not.valueL(1)) write(unit, '(A2, 3I)', iostat=ios) ' 0', valueI(1), valueI(2), valueI(3)
+              if (valueL(1)) write(unit, '(A2, 3I10)', iostat=ios) ' 1', valueI(1), valueI(2), valueI(3)
+              if (.not.valueL(1)) write(unit, '(A2, 3I10)', iostat=ios) ' 0', valueI(1), valueI(2), valueI(3)
             case default
               call GiveError('CPS file: Writing logic and integer value not possible. Wrong dimension.')
           end select
             
           call Assert( ios == 0, 'CPS file: Can''t write value of ' // trim(name) // ' into CPS file.')
 
-        end subroutine WriteLogicInteger                
+        end subroutine WriteLogicInteger
 
-              
+        integer(INTEGER_TYPE) function GetFeedbackLevel() result(res)
+        !**********************************************************************
+        !
+        ! Function:  It reads CalParams%FeedbackLevel
+        !
+        !**********************************************************************
+        use ModGlobalConstants, only: INTEGER_TYPE, REAL_TYPE
+        implicit none
+
+        res = CalParams%FeedbackLevel
+
+        end function GetFeedbackLevel
+
       end module ModReadCalculationData
-
-        
-        
-      
-      integer(INTEGER_TYPE) function GetFeedbackLevel() result(res)
-      !**********************************************************************
-      !
-      ! Function:  It reads CalParams%FeedbackLevel
-      !
-      !**********************************************************************
-      use ModReadCalculationData, only: CalParams
-      use ModGlobalConstants, only: INTEGER_TYPE, REAL_TYPE
-      implicit none
-
-      res = CalParams%FeedbackLevel
-
-      end function GetFeedbackLevel
 
       
         

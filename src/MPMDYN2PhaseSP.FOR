@@ -396,7 +396,7 @@
 
        
           !!!!!!    if pressures on boundary nodes depend on hydraulic head from file  !!!!!!  
-          if ((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
+          if ((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
               call UpdateMultipliersWaterForSpaceDependency(SpaceTimeExTLoadWater, ReducedDof) 
           
           end if
@@ -671,7 +671,7 @@
            
            
            !!!!!!!!!!!!!!!!!!!!! GENERALIZED ALPHA SCHEME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch == .TRUE.)  .and. (CalParams%TimeStep /= 1) ) then !Interpolate accelerations for the generalized alpha scheme 
+            if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.)  .and. (CalParams%TimeStep /= 1) ) then !Interpolate accelerations for the generalized alpha scheme 
             ! Generalized Alpha scheme only works after the first timestep. First timestep is always explicit. 
             do IDOF = 1, Counters%N ! loop over all degrees of freedom
                 do J = 1, Counters%nEntity ! loop over all entities
@@ -780,7 +780,7 @@
                      !ParticleIncrementalVelocity(I) = ParticleIncrementalVelocity(I) + Time * ParticleShape(INode) * NodAcc(INode, iEntity, I)
                      
                      
-                     if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch == .TRUE.) .and. (CalParams%TimeStep /=1) ) then 
+                     if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.) .and. (CalParams%TimeStep /=1) ) then 
                         !ParticleIncrementalVelocity(I) = ParticleIncrementalVelocity(I) + &
                         !    ( CalParams%TimeIncrement * ParticleShape(INode) * (CalParams%ApplyGeneralizedAlphaTimeScheme%Gamma*NodAcc(I, INode, iEntity) + &
                         !    (1-CalParams%ApplyGeneralizedAlphaTimeScheme%Gamma)*GeneralizedNodAcc(I, INode, iEntity)) )
@@ -2584,7 +2584,7 @@ end subroutine MapUpdDefGradientJacobianAtNodesToMPsWater_VolLockSmooth !MapVolu
 
                 do K = 1, NDIM
 
-                    if ((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
+                    if ((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
                         yNode = NodalCoordinates(NodeID(J), 2,IPatch_Temporary)  ! y-coordinate of a node belonging to loaded boundary
                         if (yNode <= HydrHead) then  ! check if the node is above/below the water level
                             WaterAuxSpaceDependency = - GammaW * (HydrHead - yNode)/HydrHead
@@ -3692,7 +3692,7 @@ end subroutine MapUpdDefGradientJacobianAtNodesToMPsWater_VolLockSmooth !MapVolu
                      if ((IsHydraulicHeadNode(NodeID)) .and. (yNode > HydrHead)) then ! check if the node is above/below the water level
                          IsSeepageNode(NodeID) = IsInsideArea(NodeID,SeepageArea)
                           flag = flag.or.IsSeepageNode(NodeID)
-                     else if (IsHydraulicHeadNode(NodeID) == .false.) then
+                     else if (IsHydraulicHeadNode(NodeID) .eqv. .false.) then
                          IsSeepageNode(NodeID) = IsInsideArea(NodeID,SeepageArea)
                           flag = flag.or.IsSeepageNode(NodeID)  !.true. if node is inside seepage area
                      end if

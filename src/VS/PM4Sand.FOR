@@ -1,4 +1,4 @@
-﻿    module PM4Sand
+    module PM4Sand
     !----------------------------------------------
     ! PM4Sand stress-strain model to capture the cyclic
     ! plastic deformation of soils. 
@@ -2817,7 +2817,7 @@ end subroutine GetAlpha
     
     ! dot the back stress ratio difference with the normal 
     call DoubleDot2_2_Contr(Alpha_Alpha_in_true, n_tr, DoubleDot2_2_Contr_result) ! daxn -->dot it with the n_tr --> look at table 3.1
-    if ( (DoubleDot2_2_Contr_result < 0.0) .and. (me2p /= .false.) ) then !--> me2p will actually be 1
+    if ( (DoubleDot2_2_Contr_result < 0.0) .and. (me2p .neqv. .false.) ) then !--> me2p will actually be 1
         
         ! this is a load reversal
         Alpha_in_true = Alpha
@@ -2876,7 +2876,7 @@ end subroutine GetAlpha
     end if
 
     ! Force elastic response
-    if (me2p == .false.) then !--> this will never be the case --> probably for testing the model assuming elastic behavior
+    if (me2p .eqv. .false.) then !--> this will never be the case --> probably for testing the model assuming elastic behavior
         !subroutine elastic_integrator(CurStress, NextStrainIncrement, G0, nu, Pmin, P_atm, & ! input
         !NextElasticStrainIncrement, NextStress, NextAlpha, NextVoidRatio, GG, KK, aC) ! output 
         call elastic_integrator(Sigma_n, StrainIncrement, G0, nu, Pmin, P_atm, &
@@ -5329,7 +5329,7 @@ end subroutine Stress_Correction_
     
         GG = G0 * P_atm !--> we never use this --> you can use this in stress initialization
     
-    else ! me2p == .true.
+    else ! me2p .eqv. .true.
         
         GG = G0 * P_atm * sqrt(pn / P_atm) * Csr * (1 + temp) / (1 + temp * Cgd)     
         
@@ -5403,7 +5403,7 @@ end subroutine Stress_Correction_
         pn = Pmin
     end if 
  
-    !if (me2p == .false.) then 
+    !if (me2p .eqv. .false.) then 
         
     ! shear modulus
     GG = G0 * P_atm ! .false --> linear elastic.

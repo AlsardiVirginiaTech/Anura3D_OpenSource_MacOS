@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soil–water–structure interaction using the material point method (MPM)
+    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2023  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -59,6 +59,12 @@
       use ModWriteResultData
       use ModTwoLayerFormulation
       use ModGlobalConstants
+#ifdef __INTEL_COMPILER
+#define ESM_SYMBOL "ESM"C
+#else
+      use ModDynamicLoading
+#define ESM_SYMBOL "ESM"//char(0)
+#endif
       
       implicit none
 
@@ -190,7 +196,7 @@
             end if     
             
             ! SUBROUTINE 13: GMRES algorithm
-            if (CalParams%ImplicitIntegration%IsEnterGMRES == .true.) then 
+            if (CalParams%ImplicitIntegration%IsEnterGMRES .eqv. .true.) then 
                 
                 call GMRES_SK04()
                 
@@ -199,7 +205,7 @@
             
             end do !CalParams%ImplicitIntegration%MaxNewtonIterations
                 
-            if ((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
+            if ((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
                 call ComputeWaterSpecificWeight() ! compute gamma_w = rhow*g(gravity_acc*current multiplier)
             end if
             
@@ -1924,7 +1930,7 @@ implicit none
     cmname = UMAT_MOHR_COULOMB_STANDARD
     endif          
     ! initialise UMAT
-    p = GetProcAddress(MatParams(IDSet)%SoilModelDLLHandle, "ESM"C) ! Pointing to the ESM .dll 
+    p = GetProcAddress(MatParams(IDSet)%SoilModelDLLHandle, ESM_SYMBOL) ! Pointing to the ESM .dll 
     call ESM(IDpt, IDel, IDset, Stress, Eunloading, PlasticMultiplier, StrainIncr, NSTATEVAR, StateVar, nAddVar, AdditionalVar,cmname, NPROPERTIES, props, CalParams%NumberOfPhases, ntens)
     ! save unloading stiffness in Particles array  
     Particles(IDpt)%ESM_UnloadingStiffness = Eunloading
@@ -2114,7 +2120,7 @@ implicit none
     cmname = UMAT_MOHR_COULOMB_STANDARD
     endif          
     ! initialise UMAT
-    p = GetProcAddress(MatParams(IDSet)%SoilModelDLLHandle, "ESM"C) ! Pointing to the ESM .dll 
+    p = GetProcAddress(MatParams(IDSet)%SoilModelDLLHandle, ESM_SYMBOL) ! Pointing to the ESM .dll 
     call ESM(IDpt, IDel, IDset, Stress, Eunloading, PlasticMultiplier, StrainIncr, NSTATEVAR, StateVar, nAddVar, AdditionalVar,cmname, NPROPERTIES, props, CalParams%NumberOfPhases, ntens)
     ! save unloading stiffness in Particles array  
     Particles(IDpt)%ESM_UnloadingStiffness = Eunloading

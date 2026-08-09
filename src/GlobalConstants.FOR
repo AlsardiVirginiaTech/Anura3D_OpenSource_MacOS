@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soil–water–structure interaction using the material point method (MPM)
+    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -1081,22 +1081,7 @@
         procedure(DummyWriteVTKIntegerVectorDataPointer), pointer :: WriteVTKIntegerVectorDataPointer => NULL()
         procedure(DummyWriteVTKFloatTensorDataPointer), pointer :: WriteVTKFloatTensorDataPointer => NULL()
         procedure(DummyWriteVTKIntegerTensorDataPointer), pointer :: WriteVTKIntegerTensorDataPointer => NULL()
-        
-        interface WriteVTKScalarDataPointer 
-            procedure(), pointer :: WriteVTKFloatScalarDataPointer
-            procedure(), pointer :: WriteVTKIntegerScalarDataPointer
-        end interface WriteVTKScalarDataPointer
 
-        interface WriteVTKVectorDataPointer
-            procedure(), pointer :: WriteVTKFloatVectorDataPointer 
-            procedure(), pointer :: WriteVTKIntegerVectorDataPointer 
-        end interface WriteVTKVectorDataPointer
-    
-        interface WriteVTKTensorDataPointer
-            procedure(), pointer :: WriteVTKFloatTensorDataPointer
-            procedure(), pointer :: WriteVTKIntegerTensorDataPointer
-        end interface WriteVTKTensorDataPointer 
-    
       contains
     
         subroutine DummyShapeLocPosPointer(LocPos, HS, dHS) 

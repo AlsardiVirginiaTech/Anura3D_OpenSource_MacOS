@@ -43,8 +43,14 @@ use ModGlobalConstants
 use ModReadCalculationData
 use ModReadMaterialData
 use ModMPMInit
+#ifdef __INTEL_COMPILER
 use user32
 use kernel32
+#define ESM_SYMBOL "ESM"C
+#else
+use ModDynamicLoading
+#define ESM_SYMBOL "ESM"//char(0)
+#endif
 use ModMeshInfo
 
 contains
@@ -191,7 +197,7 @@ implicit none
     cmname = UMAT_MOHR_COULOMB_STANDARD
     endif          
     ! initialise UMAT
-    p = GetProcAddress(MatParams(IDSet)%SoilModelDLLHandle, "ESM"C) ! Pointing to the ESM .dll 
+    p = GetProcAddress(MatParams(IDSet)%SoilModelDLLHandle, ESM_SYMBOL) ! Pointing to the ESM .dll 
     !call ESM(IDpt, IDel, IDset, Stress, Eunloading, PlasticMultiplier, StrainIncr, NSTATEVAR, StateVar, nAddVar, AdditionalVar,cmname, NPROPERTIES, props, CalParams%NumberOfPhases, ntens)
     
     

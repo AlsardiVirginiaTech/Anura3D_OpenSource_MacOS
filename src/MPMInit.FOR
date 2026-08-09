@@ -393,7 +393,7 @@
                 end if
 
                 ! assign (basic) data to the material point
-                Particles(ParticleIndex) = InitParticle(abs(ElementMaterialID(IElement,IPatch)), & ! Material ID
+                call InitParticle(Particles(ParticleIndex), abs(ElementMaterialID(IElement,IPatch)), & ! Material ID
                                            MaterialPointType, & ! MaterialPointType: mixture, solid, liquid, 
                                            IntegrationWeight, & ! integration weight
                                            LocPos, & ! local coordinate
@@ -698,7 +698,7 @@
                 end if
         
                 ! assign (basic) data to the material point
-                Particles(ParticleIndex) = InitParticle(abs(ElementMaterialID(ElementID,PatchID)), & ! Material ID
+                call InitParticle(Particles(ParticleIndex), abs(ElementMaterialID(ElementID,PatchID)), & ! Material ID
                                            MaterialPointType, & ! MaterialPointType: mixture, solid, liquid, 
                                            IntegrationWeight, & ! integration weight
                                            LocPos, & ! local coordinate

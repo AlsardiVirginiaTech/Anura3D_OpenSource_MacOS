@@ -443,7 +443,7 @@ module ModWriteVTKOutput
 
     call WriteVTKScalarDataPointer('pressure_liquid',DataSetScalar)
     
-    if ((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
+    if ((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
      do MaterialPointID = 1, NumberMaterialPoints ! loop over material points
          Particles(MaterialPointID)%HydraulicHead =  -Particles(MaterialPointID)%WaterPressure/CalParams%GammaWater + GlobPosArray(MaterialPointID,2)
          DataSetScalar(MaterialPointID) = Particles(MaterialPointID)%HydraulicHead
@@ -467,7 +467,7 @@ module ModWriteVTKOutput
     end do
     call WriteVTKScalarDataPointer('deviatoric_strain_solid',DataSetScalar)
 
-    !if (CalParams%ApplyFBar == .true.) then 
+    !if (CalParams%ApplyFBar .eqv. .true.) then 
     !
     !    do MaterialPointID = 1, NumberMaterialPoints ! loop over material points
     !        DataSetScalar(MaterialPointID) = Particles(MaterialPointID)%FBarVolumetricStressGradient / 3.0

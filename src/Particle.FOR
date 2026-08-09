@@ -439,7 +439,7 @@
         end subroutine SetParticleStructureDefault
         
         
-        type(ParticleType(NTENSOR, NVECTOR,MAX_LOAD_SYSTEMS)) function InitParticle(MaterialID, &
+        subroutine InitParticle(DestParticle, MaterialID, &
                                                  MaterialPointType, &
                                                  IntegrationWeight, &
                                                  LocPos, &
@@ -495,6 +495,7 @@
         !**********************************************************************
                 
         implicit none
+           type(ParticleType(NTENSOR, NVECTOR,MAX_LOAD_SYSTEMS)), intent(inout) :: DestParticle
         
           integer(INTEGER_TYPE), intent(in) :: Kind
           integer(INTEGER_TYPE), intent(in) :: MaterialID
@@ -508,18 +509,17 @@
           real(REAL_TYPE), dimension(NTENSOR), intent(in) :: FDeformationGradient
           
           ! Local variables
-          type(ParticleType(NTENSOR, NVECTOR,MAX_LOAD_SYSTEMS)) :: NewParticle
           real(REAL_TYPE) :: MaterialWeight, WaterWeight, GasWeight, UnsatWeight, SatWeight, MixedWeight,  &
                               Conductivity, ConductivityGas, InitialPorosity, DegreeSaturation, BulkWater, BulkGas, &
                               ShearModulus, RefCohesion, SinPhi, CohesionStSoft, PhiStSoft, PsiStSoft, WaterWeightPorosity
           integer(INTEGER_TYPE) :: MPIDCounter
           
-          call SetParticleStructureDefault(NewParticle)
+          call SetParticleStructureDefault(DestParticle)
           
           MPIDCounter = GetIDCounter() + 1
           call SetIDCounter(MPIDCounter)
           
-          NewParticle%Kind = Kind
+          DestParticle%Kind = Kind
           
           IsUndrEffectiveStress = &
                 !code version 2016 and previous
@@ -557,72 +557,72 @@
           ! dilatancy angle (depending on the softening parameters)
           PsiStSoft      = MatParams(MaterialID)%PeakDilatancyAngle*Pi/180.0
           
-          NewParticle%IntegrationWeight = IntegrationWeight
-          NewParticle%Damping = DampingFactor 
-          NewParticle%MaterialWeight = MaterialWeight 
-          NewParticle%WaterWeight = WaterWeight
-          NewParticle%GasWeight = GasWeight
-          NewParticle%UnsatWeight = UnsatWeight 
-          NewParticle%SatWeight = SatWeight 
-          NewParticle%MixedWeight = MixedWeight 
+          DestParticle%IntegrationWeight = IntegrationWeight
+          DestParticle%Damping = DampingFactor 
+          DestParticle%MaterialWeight = MaterialWeight 
+          DestParticle%WaterWeight = WaterWeight
+          DestParticle%GasWeight = GasWeight
+          DestParticle%UnsatWeight = UnsatWeight 
+          DestParticle%SatWeight = SatWeight 
+          DestParticle%MixedWeight = MixedWeight 
           if (NFORMULATION==1) then
-              NewParticle%Conductivity = Conductivity
+              DestParticle%Conductivity = Conductivity
               ! hardcoded
               !Particles(IParticle)%InitialConductivity = MatParams(1)%HydraulicConductivityLiquid ! --> stored for updating ..%Conductivity later on
-              NewParticle%InitialConductivity = Conductivity
-              NewParticle%ConductivityGas = ConductivityGas
+              DestParticle%InitialConductivity = Conductivity
+              DestParticle%ConductivityGas = ConductivityGas
           else
                ! 2 Constituents and 1 Phase
           !    if(MaterialPointType=='SOLID') then
-                  NewParticle%Conductivity = Conductivity
-                  NewParticle%ConductivityGas = ConductivityGas
+                  DestParticle%Conductivity = Conductivity
+                  DestParticle%ConductivityGas = ConductivityGas
               !end if
               !if(MaterialPointType=='LIQUID') then
-              !    NewParticle%Conductivity = 0.0
-              !    NewParticle%ConductivityGas = 0.0
+              !    DestParticle%Conductivity = 0.0
+              !    DestParticle%ConductivityGas = 0.0
               !end if
           end if
-          NewParticle%Porosity = InitialPorosity
-          NewParticle%InitialPorosity = InitialPorosity
-          NewParticle%DegreeSaturation = DegreeSaturation
-          NewParticle%BulkWater = BulkWater
-          NewParticle%BulkGas = BulkGas
-          NewParticle%AirInWaterMassFraction = 0.0
-          NewParticle%VapourInGasMassFraction = 0.0
-          NewParticle%LocPos = LocPos
+          DestParticle%Porosity = InitialPorosity
+          DestParticle%InitialPorosity = InitialPorosity
+          DestParticle%DegreeSaturation = DegreeSaturation
+          DestParticle%BulkWater = BulkWater
+          DestParticle%BulkGas = BulkGas
+          DestParticle%AirInWaterMassFraction = 0.0
+          DestParticle%VapourInGasMassFraction = 0.0
+          DestParticle%LocPos = LocPos
           if (NFORMULATION==1) then
-              NewParticle%Density = NewParticle%MaterialWeight / GGrav !......Soil dry density
-              NewParticle%ConstDensity = NewParticle%Density
+              DestParticle%Density = DestParticle%MaterialWeight / GGrav !......Soil dry density
+              DestParticle%ConstDensity = DestParticle%Density
           else
               ! 2 Constituents
               if(MaterialPointType==MaterialPointTypeSolid) then
                 !......solid unit density
-                NewParticle%ConstDensity = NewParticle%MaterialWeight / ((1 - NewParticle%InitialPorosity) * GGrav)
-                NewParticle%Density = NewParticle%ConstDensity*(1 - NewParticle%InitialPorosity)
+                DestParticle%ConstDensity = DestParticle%MaterialWeight / ((1 - DestParticle%InitialPorosity) * GGrav)
+                DestParticle%Density = DestParticle%ConstDensity*(1 - DestParticle%InitialPorosity)
               end if
               if(MaterialPointType==MaterialPointTypeLiquid) then
-                NewParticle%ConstDensity = NewParticle%WaterWeight /  GGrav !......liquid unit density
-                NewParticle%Density = NewParticle%ConstDensity*NewParticle%InitialPorosity
+                DestParticle%ConstDensity = DestParticle%WaterWeight /  GGrav !......liquid unit density
+                DestParticle%Density = DestParticle%ConstDensity*DestParticle%InitialPorosity
               end if
 
           end if
 
-          NewParticle%ShearModulus = ShearModulus
-          NewParticle%CohesionCosPhi = RefCohesion * dsqrt(1D0 - SinPhi * SinPhi)
+          DestParticle%ShearModulus = ShearModulus
+          DestParticle%CohesionCosPhi = RefCohesion * dsqrt(1D0 - SinPhi * SinPhi)
           if (SinPhi>1D-10) then
-            NewParticle%SFail = NewParticle%CohesionCosPhi / SinPhi
+            DestParticle%SFail = DestParticle%CohesionCosPhi / SinPhi
           else
-            NewParticle%SFail = 1D10
+            DestParticle%SFail = 1D10
           end if
 
           ! Strain softening parameters MC
-          NewParticle%CohesionStSoft = CohesionStSoft
-          NewParticle%PhiStSoft = PhiStSoft
-          NewParticle%PsiStSoft = PsiStSoft 
+          DestParticle%CohesionStSoft = CohesionStSoft
+          DestParticle%PhiStSoft = PhiStSoft
+          DestParticle%PsiStSoft = PsiStSoft 
 
           ! MCC parameters
-          NewParticle%Init_void_ratio = MatParams(MaterialID)%InitialVoidRatio
-          NewParticle%pp = MatParams(MaterialID)%MCC_PC
+          DestParticle%Init_void_ratio = MatParams(MaterialID)%InitialVoidRatio
+          DestParticle%pp = MatParams(MaterialID)%MCC_PC
           
           ! Determine the mass of the particle
           if (NFORMULATION==1) then
@@ -641,37 +641,37 @@
 
           if (Kind==NEWVIRTUALPARTICLE) then ! Use specified weight
             ParticleMassValue = VirtualParticleMass
-            NewParticle%MaterialWeight = 0.0
+            DestParticle%MaterialWeight = 0.0
           end if
 
           ParticleMassWater = DeterminePartMass(WaterWeight, GGrav, IntegrationWeight)
-          NewParticle%MassGas = DeterminePartMass(GasWeight, GGrav, IntegrationWeight)
-          NewParticle%MassMixed = DeterminePartMass(MixedWeight, GGrav, IntegrationWeight)
+          DestParticle%MassGas = DeterminePartMass(GasWeight, GGrav, IntegrationWeight)
+          DestParticle%MassMixed = DeterminePartMass(MixedWeight, GGrav, IntegrationWeight)
 
           if (NFORMULATION==1) then
               
             ! Determine dry weight
-            NewParticle%FBody(:) = MaterialWeight * IntegrationWeight * GravityVector(:) 
+            DestParticle%FBody(:) = MaterialWeight * IntegrationWeight * GravityVector(:) 
             ! Determine water weight
-            NewParticle%FBodyWater(:) = WaterWeight * IntegrationWeight * GravityVector(:) 
+            DestParticle%FBodyWater(:) = WaterWeight * IntegrationWeight * GravityVector(:) 
             ! Determine gas weight
-            NewParticle%FBodyGas(:) = GasWeight * IntegrationWeight * GravityVector(:) 
+            DestParticle%FBodyGas(:) = GasWeight * IntegrationWeight * GravityVector(:) 
 
           else ! 2 Constituents
             
             if (MaterialPointType==MaterialPointTypeSolid) then
                 
-              NewParticle%FBody(:) = (1.0 - NewParticle%Porosity) * NewParticle%ConstDensity * IntegrationWeight * CalParams%GravityData%GAccel * GravityVector(:)
-              NewParticle%FBodyWater = 0.0 
-              NewParticle%FBodyGas = 0.0
+              DestParticle%FBody(:) = (1.0 - DestParticle%Porosity) * DestParticle%ConstDensity * IntegrationWeight * CalParams%GravityData%GAccel * GravityVector(:)
+              DestParticle%FBodyWater = 0.0 
+              DestParticle%FBodyGas = 0.0
               
             end if
             
             if (MaterialPointType==MaterialPointTypeLiquid) then
                 
-              NewParticle%FBody(:) = NewParticle%Porosity * NewParticle%ConstDensity * IntegrationWeight * CalParams%GravityData%GAccel * GravityVector(:)
-              NewParticle%FBodyWater = 0.0
-              NewParticle%FBodyGas = 0.0
+              DestParticle%FBody(:) = DestParticle%Porosity * DestParticle%ConstDensity * IntegrationWeight * CalParams%GravityData%GAccel * GravityVector(:)
+              DestParticle%FBodyWater = 0.0
+              DestParticle%FBodyGas = 0.0
               
             end if
             
@@ -680,57 +680,56 @@
           ! water weight is zero if using submerged weight 
           if(ISSubmerged)then
             if (MixedWeight <= MaterialWeight) then
-              NewParticle%FBodyWater = 0.0
+              DestParticle%FBodyWater = 0.0
             end if
           end if
 
           ! Determine mixed (saturated/unsaturated) weight
-          NewParticle%FBodyMixed(:) = MixedWeight * IntegrationWeight * GravityVector(:)
+          DestParticle%FBodyMixed(:) = MixedWeight * IntegrationWeight * GravityVector(:)
 
 
           if (.not.(NFORMULATION==1)) then
             if (MaterialPointType==MaterialPointTypeLiquid) then
-              NewParticle%BulkWater = BulkWater
-              NewParticle%Porosity = InitialPorosity
-              NewParticle%InitialPorosity = InitialPorosity
+              DestParticle%BulkWater = BulkWater
+              DestParticle%Porosity = InitialPorosity
+              DestParticle%InitialPorosity = InitialPorosity
 
             else
-              NewParticle%BulkWater = BulkWater
-              NewParticle%Porosity = InitialPorosity
-              NewParticle%InitialPorosity = InitialPorosity
+              DestParticle%BulkWater = BulkWater
+              DestParticle%Porosity = InitialPorosity
+              DestParticle%InitialPorosity = InitialPorosity
             end if
             
             if (MatParams(MaterialID)%MaterialType=='1-phase-liquid'.or.MatParams(MaterialID)%MaterialPhases=='1-phase-liquid') then
-              NewParticle%PhaseStatus = PhaseStatusLIQUID
-              NewParticle%ContainedMaterialTypes = ContainedMaterialTypeLIQUID
-              NewParticle%FillingRatio = 1.0
+              DestParticle%PhaseStatus = PhaseStatusLIQUID
+              DestParticle%ContainedMaterialTypes = ContainedMaterialTypeLIQUID
+              DestParticle%FillingRatio = 1.0
             else if(MatParams(MaterialID)%MaterialType=='1-phase-solid'.or.MatParams(MaterialID)%MaterialPhases=='1-phase-solid') then
-              NewParticle%PhaseStatus = PhaseStatusSOLID
-              NewParticle%ContainedMaterialTypes = ContainedMaterialTypeSOLID
-              NewParticle%FillingRatio = 1.0 - InitialPorosity
+              DestParticle%PhaseStatus = PhaseStatusSOLID
+              DestParticle%ContainedMaterialTypes = ContainedMaterialTypeSOLID
+              DestParticle%FillingRatio = 1.0 - InitialPorosity
             else if(MatParams(MaterialID)%MaterialType=='2-phase'.or.MatParams(MaterialID)%MaterialPhases=='2-phase') then
-              NewParticle%PhaseStatus = PhaseStatusSOLID
-              NewParticle%ContainedMaterialTypes = ContainedMaterialTypeSOLIDLIQUID
-              NewParticle%FillingRatio = 1.0
+              DestParticle%PhaseStatus = PhaseStatusSOLID
+              DestParticle%ContainedMaterialTypes = ContainedMaterialTypeSOLIDLIQUID
+              DestParticle%FillingRatio = 1.0
             end if
-            NewParticle%ConcentrationRatioSolidL = 1.0 - InitialPorosity
-            NewParticle%EffConcentrationRatioSolid = 1.0 - InitialPorosity
-            NewParticle%ConcentrationRatioLiquidS = InitialPorosity
-            NewParticle%ConcentrationRatioLiquidL = InitialPorosity
-            NewParticle%EffConcentrationRatioLiquid = InitialPorosity
-            NewParticle%PorosityL = InitialPorosity
-            NewParticle%EffPorosity = InitialPorosity
+            DestParticle%ConcentrationRatioSolidL = 1.0 - InitialPorosity
+            DestParticle%EffConcentrationRatioSolid = 1.0 - InitialPorosity
+            DestParticle%ConcentrationRatioLiquidS = InitialPorosity
+            DestParticle%ConcentrationRatioLiquidL = InitialPorosity
+            DestParticle%EffConcentrationRatioLiquid = InitialPorosity
+            DestParticle%PorosityL = InitialPorosity
+            DestParticle%EffPorosity = InitialPorosity
           end if
           
           ! deformation gradient initialisation
-          !NewParticle%FDeformationGradient = FDeformationGradient
-
-          InitParticle = NewParticle
-
-        end function InitParticle
+          !DestParticle%FDeformationGradient = FDeformationGradient
 
 
-        type(ParticleType(NTENSOR, NVECTOR,MAX_LOAD_SYSTEMS)) function CopyParticle(Particle, ID)
+        end subroutine InitParticle
+
+
+        subroutine CopyParticle(DestParticle, Particle, ID)
         !**********************************************************************
         !
         !   Function:  Copies all data from Particle to a new particle except
@@ -747,114 +746,115 @@
         
           type(ParticleType(NTENSOR, NVECTOR,MAX_LOAD_SYSTEMS)), intent(in) :: Particle
           integer(INTEGER_TYPE), intent(in) ::  ID
+          type(ParticleType(NTENSOR, NVECTOR,MAX_LOAD_SYSTEMS)), intent(inout) :: DestParticle
           
-          call SetParticleStructureDefault(CopyParticle)
+          call SetParticleStructureDefault(DestParticle)
           
           if (ID>0) then
      
-            CopyParticle%Kind = Particle%Kind
-            CopyParticle%MassGas = Particle%MassGas
-            CopyParticle%MassMixed = Particle%MassMixed
-            CopyParticle%Damping = Particle%Damping
-            CopyParticle%DBulkViscousPressure = Particle%DBulkViscousPressure
-            CopyParticle%MaterialWeight = Particle%MaterialWeight
-            CopyParticle%WaterWeight = Particle%WaterWeight
-            CopyParticle%GasWeight = Particle%GasWeight
-            CopyParticle%SatWeight = Particle%SatWeight
-            CopyParticle%UnsatWeight = Particle%UnsatWeight
-            CopyParticle%MixedWeight = Particle%MixedWeight
-            CopyParticle%Conductivity = Particle%Conductivity
-            CopyParticle%ConductivityGas = Particle%ConductivityGas
-            CopyParticle%Porosity = Particle%Porosity
-            CopyParticle%ESM_UnloadingStiffness = Particle%ESM_UnloadingStiffness
-            CopyParticle%InitialPorosity = Particle%InitialPorosity
-            CopyParticle%DegreeSaturation = Particle%DegreeSaturation
-            CopyParticle%BulkWater = Particle%BulkWater
-            CopyParticle%BulkGas = Particle%BulkGas
-            CopyParticle%AirInWaterMassFraction = Particle%AirInWaterMassFraction
-            CopyParticle%VapourInGasMassFraction = Particle%VapourInGasMassFraction
-            CopyParticle%DiffusionAirInWater = Particle%DiffusionAirInWater
-            CopyParticle%DiffusionVapourInGas = Particle%DiffusionVapourInGas
-            CopyParticle%WaterAdvectiveFlux = Particle%WaterAdvectiveFlux ! Water Advective flux
-            CopyParticle%AirAdvectiveFlux = Particle%AirAdvectiveFlux
-            CopyParticle%Density = Particle%Density
-            CopyParticle%ConstDensity = Particle%ConstDensity
-            CopyParticle%ShearModulus = Particle%ShearModulus
-            CopyParticle%CohesionCosPhi = Particle%CohesionCosPhi
-            CopyParticle%CohesionStSoft = Particle%CohesionStSoft
-            CopyParticle%PhiStSoft = Particle%PhiStSoft
-            CopyParticle%PsiStSoft = Particle%PsiStSoft 
-            CopyParticle%pp = Particle%pp
-            CopyParticle%SFail = Particle%SFail
-            CopyParticle%IPL = Particle%IPL
-            CopyParticle%IntegrationWeight = Particle%IntegrationWeight
-            CopyParticle%EoedHP = Particle%EoedHP
-            CopyParticle%Alpha = Particle%Alpha
-            CopyParticle%Beta = Particle%Beta
+            DestParticle%Kind = Particle%Kind
+            DestParticle%MassGas = Particle%MassGas
+            DestParticle%MassMixed = Particle%MassMixed
+            DestParticle%Damping = Particle%Damping
+            DestParticle%DBulkViscousPressure = Particle%DBulkViscousPressure
+            DestParticle%MaterialWeight = Particle%MaterialWeight
+            DestParticle%WaterWeight = Particle%WaterWeight
+            DestParticle%GasWeight = Particle%GasWeight
+            DestParticle%SatWeight = Particle%SatWeight
+            DestParticle%UnsatWeight = Particle%UnsatWeight
+            DestParticle%MixedWeight = Particle%MixedWeight
+            DestParticle%Conductivity = Particle%Conductivity
+            DestParticle%ConductivityGas = Particle%ConductivityGas
+            DestParticle%Porosity = Particle%Porosity
+            DestParticle%ESM_UnloadingStiffness = Particle%ESM_UnloadingStiffness
+            DestParticle%InitialPorosity = Particle%InitialPorosity
+            DestParticle%DegreeSaturation = Particle%DegreeSaturation
+            DestParticle%BulkWater = Particle%BulkWater
+            DestParticle%BulkGas = Particle%BulkGas
+            DestParticle%AirInWaterMassFraction = Particle%AirInWaterMassFraction
+            DestParticle%VapourInGasMassFraction = Particle%VapourInGasMassFraction
+            DestParticle%DiffusionAirInWater = Particle%DiffusionAirInWater
+            DestParticle%DiffusionVapourInGas = Particle%DiffusionVapourInGas
+            DestParticle%WaterAdvectiveFlux = Particle%WaterAdvectiveFlux ! Water Advective flux
+            DestParticle%AirAdvectiveFlux = Particle%AirAdvectiveFlux
+            DestParticle%Density = Particle%Density
+            DestParticle%ConstDensity = Particle%ConstDensity
+            DestParticle%ShearModulus = Particle%ShearModulus
+            DestParticle%CohesionCosPhi = Particle%CohesionCosPhi
+            DestParticle%CohesionStSoft = Particle%CohesionStSoft
+            DestParticle%PhiStSoft = Particle%PhiStSoft
+            DestParticle%PsiStSoft = Particle%PsiStSoft 
+            DestParticle%pp = Particle%pp
+            DestParticle%SFail = Particle%SFail
+            DestParticle%IPL = Particle%IPL
+            DestParticle%IntegrationWeight = Particle%IntegrationWeight
+            DestParticle%EoedHP = Particle%EoedHP
+            DestParticle%Alpha = Particle%Alpha
+            DestParticle%Beta = Particle%Beta
 
-            CopyParticle%LiquidFreeSurface = Particle%LiquidFreeSurface
-            CopyParticle%LiquidFreeSurfaceCumul = Particle%LiquidFreeSurfaceCumul
-            CopyParticle%PhaseStatus = Particle%PhaseStatus
-            CopyParticle%ContainedMaterialTypes = Particle%ContainedMaterialTypes
-            CopyParticle%ConcentrationRatioSolidL = Particle%ConcentrationRatioSolidL
-            CopyParticle%ConcentrationRatioLiquidL = Particle%ConcentrationRatioLiquidL
-            CopyParticle%FillingRatio = Particle%FillingRatio
+            DestParticle%LiquidFreeSurface = Particle%LiquidFreeSurface
+            DestParticle%LiquidFreeSurfaceCumul = Particle%LiquidFreeSurfaceCumul
+            DestParticle%PhaseStatus = Particle%PhaseStatus
+            DestParticle%ContainedMaterialTypes = Particle%ContainedMaterialTypes
+            DestParticle%ConcentrationRatioSolidL = Particle%ConcentrationRatioSolidL
+            DestParticle%ConcentrationRatioLiquidL = Particle%ConcentrationRatioLiquidL
+            DestParticle%FillingRatio = Particle%FillingRatio
 
-            CopyParticle%PorosityL = Particle%PorosityL
+            DestParticle%PorosityL = Particle%PorosityL
 
-            CopyParticle%ConcentrationRatioLiquidS = Particle%ConcentrationRatioLiquidS
-            CopyParticle%EffConcentrationRatioSolid = Particle%EffConcentrationRatioSolid
-            CopyParticle%EffConcentrationRatioLiquid = Particle%EffConcentrationRatioLiquid
-            CopyParticle%EffPorosity = Particle%EffPorosity
+            DestParticle%ConcentrationRatioLiquidS = Particle%ConcentrationRatioLiquidS
+            DestParticle%EffConcentrationRatioSolid = Particle%EffConcentrationRatioSolid
+            DestParticle%EffConcentrationRatioLiquid = Particle%EffConcentrationRatioLiquid
+            DestParticle%EffPorosity = Particle%EffPorosity
 
-            call SetFExt(CopyParticle, Particle%FExt)
-            call SetFExtWater(CopyParticle, Particle%FExtWater)
-            call SetFExtGas(CopyParticle, Particle%FExtGas)
+            call SetFExt(DestParticle, Particle%FExt)
+            call SetFExtWater(DestParticle, Particle%FExtWater)
+            call SetFExtGas(DestParticle, Particle%FExtGas)
 
-            CopyParticle%FBody = Particle%FBody
-            CopyParticle%FBodyWater = Particle%FBodyWater
-            CopyParticle%FBodyGas = Particle%FBodyGas
-            CopyParticle%FBodyMixed = Particle%FBodyMixed
+            DestParticle%FBody = Particle%FBody
+            DestParticle%FBodyWater = Particle%FBodyWater
+            DestParticle%FBodyGas = Particle%FBodyGas
+            DestParticle%FBodyMixed = Particle%FBodyMixed
 
-            call SetPrescrDisp(CopyParticle, Particle%PrescrDisp)
-            CopyParticle%PrescrVelo = Particle%PrescrVelo !Prescribed particle velocity
-            CopyParticle%MPPrescribedVeloDir = Particle%MPPrescribedVeloDir
-            CopyParticle%LocPos = Particle%LocPos
-            CopyParticle%IsBoundaryParticle = Particle%IsBoundaryParticle
-            CopyParticle%IsHydrHeadBoundaryParticle = Particle%IsHydrHeadBoundaryParticle
+            call SetPrescrDisp(DestParticle, Particle%PrescrDisp)
+            DestParticle%PrescrVelo = Particle%PrescrVelo !Prescribed particle velocity
+            DestParticle%MPPrescribedVeloDir = Particle%MPPrescribedVeloDir
+            DestParticle%LocPos = Particle%LocPos
+            DestParticle%IsBoundaryParticle = Particle%IsBoundaryParticle
+            DestParticle%IsHydrHeadBoundaryParticle = Particle%IsHydrHeadBoundaryParticle
 
-            CopyParticle%AccelerationWater = Particle%AccelerationWater
-            CopyParticle%UStepWater = Particle%UStepWater
-            CopyParticle%UW = Particle%UW
-            CopyParticle%UG = Particle%UG
-            CopyParticle%WaterPressure = Particle%WaterPressure
-            CopyParticle%WaterPressure0 = Particle%WaterPressure0
-            CopyParticle%HydraulicHead = Particle%HydraulicHead
+            DestParticle%AccelerationWater = Particle%AccelerationWater
+            DestParticle%UStepWater = Particle%UStepWater
+            DestParticle%UW = Particle%UW
+            DestParticle%UG = Particle%UG
+            DestParticle%WaterPressure = Particle%WaterPressure
+            DestParticle%WaterPressure0 = Particle%WaterPressure0
+            DestParticle%HydraulicHead = Particle%HydraulicHead
             
-            CopyParticle%GasPressure = Particle%GasPressure
-            CopyParticle%GasPressure0 = Particle%GasPressure0
+            DestParticle%GasPressure = Particle%GasPressure
+            DestParticle%GasPressure0 = Particle%GasPressure0
 
-            CopyParticle%WaterVolumetricStrain = Particle%WaterVolumetricStrain
-            CopyParticle%GasVolumetricStrain= Particle%GasVolumetricStrain
+            DestParticle%WaterVolumetricStrain = Particle%WaterVolumetricStrain
+            DestParticle%GasVolumetricStrain= Particle%GasVolumetricStrain
             
-            CopyParticle%Temperature = Particle%Temperature
-            CopyParticle%ThermalCapacity = Particle%ThermalCapacity
+            DestParticle%Temperature = Particle%Temperature
+            DestParticle%ThermalCapacity = Particle%ThermalCapacity
             
-            call SetEps(CopyParticle, Particle%Eps)
+            call SetEps(DestParticle, Particle%Eps)
 
-            call SetEpsP(CopyParticle, Particle%EpsP)
+            call SetEpsP(DestParticle, Particle%EpsP)
 
-            call SetEpsStep(CopyParticle, Particle%EpsStep)
-            call SetEpsStepPrevious(CopyParticle, Particle%EpsStepPrevious)
-            call SetSigmaEffStep(CopyParticle, Particle%SigmaEffStep)
-            call SetSigmaPrin(CopyParticle, Particle%SigmaPrin)
-            call SetVariableData(CopyParticle, Particle%VariableData)
-            call SetHPStateVariables(CopyParticle, Particle%HPStateVariables)
-            call SetHPIGStateVariables(CopyParticle, Particle%HPIGStateVariables)
-            call SetModifiedHPStateVariables(CopyParticle, Particle%ModifiedHPStateVariables)
+            call SetEpsStep(DestParticle, Particle%EpsStep)
+            call SetEpsStepPrevious(DestParticle, Particle%EpsStepPrevious)
+            call SetSigmaEffStep(DestParticle, Particle%SigmaEffStep)
+            call SetSigmaPrin(DestParticle, Particle%SigmaPrin)
+            call SetVariableData(DestParticle, Particle%VariableData)
+            call SetHPStateVariables(DestParticle, Particle%HPStateVariables)
+            call SetHPIGStateVariables(DestParticle, Particle%HPIGStateVariables)
+            call SetModifiedHPStateVariables(DestParticle, Particle%ModifiedHPStateVariables)
           end if
         
-        end function CopyParticle
+        end subroutine CopyParticle
 
         function GetFExt(Particle)
         !**********************************************************************

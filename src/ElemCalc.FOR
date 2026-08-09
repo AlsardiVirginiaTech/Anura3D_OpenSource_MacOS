@@ -2121,6 +2121,7 @@
         !**********************************************************************
 
         implicit none
+          integer(INTEGER_TYPE), intent(in) :: IPatch
 
           integer(INTEGER_TYPE), intent(in) :: NEl, NodTot, IDim, IElement
           real(REAL_TYPE), dimension(:), intent(in) :: LocPos
@@ -2174,7 +2175,6 @@
           
           ! Multipatch variables 
           !integer(INTEGER_TYPE) :: IPatch_Temporary
-          integer(INTEGER_TYPE), intent(in) :: IPatch
           !integer(INTEGER_TYPE) :: aa
 
           
@@ -2391,6 +2391,7 @@
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
         implicit none 
+          integer(INTEGER_TYPE), intent(in) :: IPatch
         
         ! Hardcoded index to 1
         integer(INTEGER_TYPE), dimension(Counters%NPatches), intent(in) :: nen_NURBS
@@ -2400,7 +2401,6 @@
         
         integer(INTEGER_TYPE) :: loc_num, aa, bb
         
-        integer(INTEGER_TYPE), intent(in) :: IPatch
 
         allocate( dR_dx( nen_NURBS(IPatch), NDIM ) )
         dR_dx = 0.0
@@ -2453,6 +2453,7 @@
         !**********************************************************************
 
         implicit none
+          integer(INTEGER_TYPE), intent(in) :: IPatch
 
           integer(INTEGER_TYPE), intent(in) :: IElTyp, NEl, NodTot, IDim
           real(REAL_TYPE), dimension(IDim), intent(in) :: LocPos
@@ -2496,7 +2497,6 @@
           
           ! Multipatch variables 
           integer(INTEGER_TYPE) :: IPatch_Temporary
-          integer(INTEGER_TYPE), intent(in) :: IPatch
           integer(INTEGER_TYPE) :: aa
           
           ni = NURBS%INN(ElementConnectivities(1,IElement,IPatch),1,IPatch)    
@@ -3873,13 +3873,14 @@
           real(REAL_TYPE), dimension(:), intent(in) :: GlobPos
           real(REAL_TYPE), dimension(:), intent(in) :: UStepArray
           integer(INTEGER_TYPE), intent(in) :: IElement
+          integer(INTEGER_TYPE), intent(in) :: IPatch
           real(REAL_TYPE), dimension(NURBS%Maximum_NControlPoints, NDIM, Counters%NPatches), intent(in) :: NodeCoord !(IPatch)
           !real(REAL_TYPE), dimension(:, :), intent(in) :: IncrementalDisplacementSoil
           !integer(INTEGER_TYPE), dimension((NXiKnotOrder(IPatch)+1)*(NEtaKnotOrder(IPatch)+1)*(NZetaKnotOrder(IPatch)+1), nel_NURBS(IPatch)), intent(in) :: ICon
 
           integer(INTEGER_TYPE), dimension(ELEMENTNODES, Counters%NEl(IPatch)), intent(in) :: ICon
-          
-          real(REAL_TYPE), dimension(IDim), intent(inout) :: LocPos !local position of point is an output 
+
+          real(REAL_TYPE), dimension(IDim), intent(inout) :: LocPos !local position of point is an output
           logical, intent(out) :: OutsideElement, Success
           integer(INTEGER_TYPE), dimension(Counters%NEl(IPatch),6), intent(in) :: ElementAdjacencies
           real(REAL_TYPE), dimension(NDIM, NDIM) :: dtildexi_dx
@@ -3911,7 +3912,6 @@
           
           ! Multipatch variables
           integer(INTEGER_TYPE) :: IPatch_Temporary
-          integer(INTEGER_TYPE), intent(in) :: IPatch
           integer(INTEGER_TYPE) :: aa ! debugging place holder
 
           
@@ -4214,6 +4214,7 @@
           real(REAL_TYPE), dimension(:), intent(in) :: GlobPos
           real(REAL_TYPE), dimension(:), intent(in) :: UStepArray
           integer(INTEGER_TYPE), intent(in) :: IElement
+          integer(INTEGER_TYPE), intent(in) :: IPatch
           !real(REAL_TYPE), dimension(Counters%NodTot(IPatch), NDIM), intent(in) :: NodeCoord
           real(REAL_TYPE), dimension(NURBS%Maximum_NControlPoints, NDIM, Counters%NPatches), intent(in) :: NodeCoord
           !real(REAL_TYPE), dimension(:, :), intent(in) :: IncrementalDisplacementSoil
@@ -4253,7 +4254,6 @@
           
           ! Multipatch variables
           integer(INTEGER_TYPE) :: IPatch_Temporary
-          integer(INTEGER_TYPE), intent(in) :: IPatch
           integer(INTEGER_TYPE) :: aa ! debugging place holder
 
           
@@ -5663,11 +5663,11 @@
       !  
       !  ! total number of gauss points in a 2D quadrilateral element
       !  ! depending on the traction direction
-      !  !if ( (Traction_X_Direction == .true.) .and. (Traction_Y_Direction == .true.) .and. (Traction_Z_Direction == .false.) ) then 
+      !  !if ( (Traction_X_Direction .eqv. .true.) .and. (Traction_Y_Direction .eqv. .true.) .and. (Traction_Z_Direction .eqv. .false.) ) then 
       !  !    ELEMENTGAUSSPOINTS_LOCAL_2D = NXiGaussPoints*NEtaGaussPoints
-      !  !else if ( (Traction_X_Direction == .true.) .and. (Traction_Y_Direction == .false.) .and. (Traction_Z_Direction == .true.) ) then
+      !  !else if ( (Traction_X_Direction .eqv. .true.) .and. (Traction_Y_Direction .eqv. .false.) .and. (Traction_Z_Direction .eqv. .true.) ) then
       !  !    ELEMENTGAUSSPOINTS_LOCAL_2D = NXiGaussPoints*NZetaGaussPoints
-      !  !else if ( (Traction_X_Direction == .false.) .and. (Traction_Y_Direction == .true.) .and. (Traction_Z_Direction == .true.) ) then
+      !  !else if ( (Traction_X_Direction .eqv. .false.) .and. (Traction_Y_Direction .eqv. .true.) .and. (Traction_Z_Direction .eqv. .true.) ) then
       !  !    ELEMENTGAUSSPOINTS_LOCAL_2D = NEtaGaussPoints*NZetaGaussPoints
       !  !end if 
       !  
@@ -6979,11 +6979,11 @@
         
         ! total number of gauss points in a 2D quadrilateral element
         ! depending on the traction direction
-        !if ( (Traction_X_Direction == .true.) .and. (Traction_Y_Direction == .true.) .and. (Traction_Z_Direction == .false.) ) then 
+        !if ( (Traction_X_Direction .eqv. .true.) .and. (Traction_Y_Direction .eqv. .true.) .and. (Traction_Z_Direction .eqv. .false.) ) then 
         !    ELEMENTGAUSSPOINTS_LOCAL_2D = NXiGaussPoints*NEtaGaussPoints
-        !else if ( (Traction_X_Direction == .true.) .and. (Traction_Y_Direction == .false.) .and. (Traction_Z_Direction == .true.) ) then
+        !else if ( (Traction_X_Direction .eqv. .true.) .and. (Traction_Y_Direction .eqv. .false.) .and. (Traction_Z_Direction .eqv. .true.) ) then
         !    ELEMENTGAUSSPOINTS_LOCAL_2D = NXiGaussPoints*NZetaGaussPoints
-        !else if ( (Traction_X_Direction == .false.) .and. (Traction_Y_Direction == .true.) .and. (Traction_Z_Direction == .true.) ) then
+        !else if ( (Traction_X_Direction .eqv. .false.) .and. (Traction_Y_Direction .eqv. .true.) .and. (Traction_Z_Direction .eqv. .true.) ) then
         !    ELEMENTGAUSSPOINTS_LOCAL_2D = NEtaGaussPoints*NZetaGaussPoints
         !end if 
         

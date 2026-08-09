@@ -123,7 +123,7 @@
           
           
           
-          if ((CalParams%ApplyGeneralizedAlphaTimeScheme%Switch == .TRUE.) .and. (CalParams%TimeStep /= 1)) then 
+          if ((CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.) .and. (CalParams%TimeStep /= 1)) then 
               call MapAccAndVeloP2NGeneralizedAlpha(LumpedMassDry)  ! --> 
               call MapAccAndVeloP2NGeneralizedAlpha_2phase(LumpedMassDry)  
               
@@ -1307,7 +1307,7 @@
            !end do ! loop over load systems
            !end do ! loop over patches 
            
-            if ((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
+            if ((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
            ExtLoad = ExtLoad + SpaceTimeExTLoadWater
            end if
           
@@ -1374,7 +1374,7 @@
              end do
            end if
            
-            if ((CalParams%PrescribedHead%HydraulicHead == .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
+            if ((CalParams%PrescribedHead%HydraulicHead .eqv. .true.) .and. (CalParams%Multipliers%HydraulicHeadType == LOAD_TYPE_FILE)) then
            ExtLoad = ExtLoad + SpaceTimeExTLoadWater
           end if
            
@@ -2290,7 +2290,7 @@
           
           
           !!!!!!!!!!!!!!!!!!!!! GENERALIZED ALPHA SCHEME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-          if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch == .TRUE.)  .and. (CalParams%TimeStep /= 1) ) then !Interpolate accelerations for the generalized alpha scheme 
+          if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.)  .and. (CalParams%TimeStep /= 1) ) then !Interpolate accelerations for the generalized alpha scheme 
           ! Generalized Alpha scheme only works after the first timestep. First timestep is always explicit. 
               do IDOF = 1, Counters%N ! loop over all degrees of freedom
                 do J = 1, Counters%nEntity ! loop over all entities
@@ -4028,7 +4028,7 @@
             do IParticle = 1, Counters%NParticles ! loop over material points
               !ParticleIndex = GetParticleIndexFromList(IParticle)
                 
-                if (Particles(IParticle)%MPPrescribedVeloSwitch == .true.) then ! if apply prescribed velo locus
+                if (Particles(IParticle)%MPPrescribedVeloSwitch .eqv. .true.) then ! if apply prescribed velo locus
               
                     do IDir = 1, NVECTOR ! loop over directions
                 
@@ -4232,7 +4232,7 @@
         !  
         !    do IParticle = 1, Counters%NParticles ! loop over material points
         !      !ParticleIndex = GetParticleIndexFromList(IParticle)
-        !        if (Particles(IParticle)%MPPrescribedVeloSwitch == .true.) then ! if apply prescribed velo locus
+        !        if (Particles(IParticle)%MPPrescribedVeloSwitch .eqv. .true.) then ! if apply prescribed velo locus
         !      do IDir = 1, NVECTOR
         !        !if (Particles(ParticleIndex)%MPPrescribedVeloDir(IDir)) then
         !          UArray(IParticle,IDir) = UArray(IParticle,IDir) + (Particles(IParticle)%MPPrescribedVelo(IDir) * CalParams%TimeIncrement ) !GetParticlePrescribedVelocityI(IDir, ParticleIndex)

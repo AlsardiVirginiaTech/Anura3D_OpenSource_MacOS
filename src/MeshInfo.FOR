@@ -2060,7 +2060,7 @@
                               
                               
                               !cycle
-                              if (repetition_test == .true.) then 
+                              if (repetition_test .eqv. .true.) then 
                                   repetition_test = .false. 
                                   cycle 
                               else 
@@ -2134,7 +2134,7 @@
                               
                               
                               !cycle
-                              if (repetition_test == .true.) then 
+                              if (repetition_test .eqv. .true.) then 
                                   repetition_test = .false. 
                                   cycle 
                               else 
@@ -2156,7 +2156,7 @@
                   
                   
                   
-                  if ((logic_test==.true.).and.(IsItWritten==.false.)) then
+                  if ((logic_test.eqv. .true.).and.(IsItWritten.eqv. .false.)) then
                       
                       GlobalMultipatchNodalCoordinates(GlobalMultipatchNodalIndex,1:NVECTOR) = &
                                   NodeCoordinatesSelected
@@ -2254,7 +2254,7 @@
               
                   end do ! IPatch_Loop_2
               
-                  if (IsItUnique == .true.) then 
+                  if (IsItUnique .eqv. .true.) then 
                       NumberOfGlobalControlPointsUniqueMultipatch=NumberOfGlobalControlPointsUniqueMultipatch+1    
                       cycle
                       !exit
@@ -2338,7 +2338,7 @@
                           ! check if we have spotted the matching actual node to the traction node
                           if ( (NodalCoordinates_Traction(IControlPoint_Traction,1, ILoadSystem, IPatch)==NodalCoordinates(IControlPoint_ActualMaterial,1, IPatch)) &
                           .and. (NodalCoordinates_Traction(IControlPoint_Traction,2, ILoadSystem, IPatch)==NodalCoordinates(IControlPoint_ActualMaterial,2, IPatch)) &
-                          .and. (Traction_Matching_Status(IControlPoint_ActualMaterial)==.false.)) then 
+                          .and. (Traction_Matching_Status(IControlPoint_ActualMaterial).eqv. .false.)) then 
                           
                               ! record the matching actual node 
                               Traction_Connecting_Local_To_Global_ControlPoints(IControlPoint_Traction, ILoadSystem, IPatch) = IControlPoint_ActualMaterial
@@ -2362,7 +2362,7 @@
                           if ((NodalCoordinates_Traction(IControlPoint_Traction,1, ILoadSystem, IPatch)==NodalCoordinates(IControlPoint_ActualMaterial,1, IPatch)) &
                           .and. (NodalCoordinates_Traction(IControlPoint_Traction,2, ILoadSystem, IPatch)==NodalCoordinates(IControlPoint_ActualMaterial,2, IPatch)) &
                           .and. (NodalCoordinates_Traction(IControlPoint_Traction,3, ILoadSystem, IPatch)==NodalCoordinates(IControlPoint_ActualMaterial,3, IPatch)) & 
-                          .and. (Traction_Matching_Status(IControlPoint_ActualMaterial)==.false.) ) then 
+                          .and. (Traction_Matching_Status(IControlPoint_ActualMaterial).eqv. .false.) ) then 
                           
                               ! record the matching actual node 
                               Traction_Connecting_Local_To_Global_ControlPoints(IControlPoint_Traction, ILoadSystem, IPatch) = IControlPoint_ActualMaterial
@@ -2436,13 +2436,13 @@
                       ! looping accross actual element
                       do IElement_ActualMaterial = 1, Counters%NEl(IPatch)!NURBS%nel_NURBS(IPatch)
                           
-                          if (element_success == .true.) then 
+                          if (element_success .eqv. .true.) then 
                                   exit 
                           end if 
                           
                           do IElementCon_Traction = 1, NURBS%nen_NURBS_Traction(ILoadSystem, IPatch)
                               
-                              if (element_success == .true.) then 
+                              if (element_success .eqv. .true.) then 
                                   exit 
                               end if 
                               
@@ -2488,13 +2488,13 @@
                       ! looping accross actual element
                       do IElement_ActualMaterial = 1, Counters%NEl(IPatch)!NURBS%nel_NURBS(IPatch)
                           
-                          if (element_success == .true.) then 
+                          if (element_success .eqv. .true.) then 
                                   exit 
                           end if 
                           
                           do IElementCon_Traction = 1, NURBS%nen_NURBS_Traction(ILoadSystem, IPatch)
                               
-                              if (element_success == .true.) then 
+                              if (element_success .eqv. .true.) then 
                                   exit 
                               end if 
                               
@@ -2752,7 +2752,7 @@
                               
                             end if 
                               
-                          if (side_test(ISide , IElement_Traction) == .true.) then 
+                          if (side_test(ISide , IElement_Traction) .eqv. .true.) then 
                               exit 
                               
                           end if 
@@ -2760,7 +2760,7 @@
                           
                       end do ! node 
                       
-                      if (side_test(ISide , IElement_Traction) == .true.) then 
+                      if (side_test(ISide , IElement_Traction) .eqv. .true.) then 
                               exit 
                       end if 
                           

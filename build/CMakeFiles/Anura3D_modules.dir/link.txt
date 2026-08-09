@@ -1,0 +1,2 @@
+/usr/bin/ar qc libAnura3D_modules.a CMakeFiles/Anura3D_modules.dir/src/GlobalConstants.FOR.o CMakeFiles/Anura3D_modules.dir/src/Counters.FOR.o CMakeFiles/Anura3D_modules.dir/src/String.for.o CMakeFiles/Anura3D_modules.dir/src/timing.for.o CMakeFiles/Anura3D_modules.dir/src/getversion.for.o CMakeFiles/Anura3D_modules.dir/src/ISORT.FOR.o
+/usr/bin/ranlib libAnura3D_modules.a

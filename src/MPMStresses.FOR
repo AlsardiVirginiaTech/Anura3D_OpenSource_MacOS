@@ -780,7 +780,7 @@
          
         
           ! Determine depth of point below a phreatic surface defined in an external file     
-          if (GeoParams%ApplyInitialWaterSurfaceFromFile == .true.)then
+          if (GeoParams%ApplyInitialWaterSurfaceFromFile .eqv. .true.)then
                do I = 1, GeoParams%NumberWaterSurfaceMaterials
                if (MaterialIndex == GeoParams%WaterSurfaceMaterialID(I))then               
 			   call DetermineCoordRelativeToSurfaceDefinedInExternalFile(MaterialIndex, SoilPoint, PhreaticSurfDepth,NewReferencePhreatic)
@@ -847,7 +847,7 @@
           SigY = SigY + CalParams%InitialVerticalLoadK0 !* CalParams%Multipliers%SolidARealised(1) ! I commented this to remove load dependency on this multiplier
 
           !Calculate water pressure
-          if ((Counters%SoilSurfaceNumberofSides > 0) .or. (GeoParams%ApplyInitialWaterSurfaceFromFile == .true.)) then
+          if ((Counters%SoilSurfaceNumberofSides > 0) .or. (GeoParams%ApplyInitialWaterSurfaceFromFile .eqv. .true.)) then
               SigWP = - PhreaticSurfDepth * GammaLiquid * CalParams%Multipliers%GravityRealised
           else
               SigWP = Depth * GammaLiquid * CalParams%Multipliers%GravityRealised
@@ -917,7 +917,7 @@
          
         
           ! Determine depth of point below a phreatic surface defined in an external file     
-          if (GeoParams%ApplyInitialWaterSurfaceFromFile == .true.)then
+          if (GeoParams%ApplyInitialWaterSurfaceFromFile .eqv. .true.)then
                do I = 1, GeoParams%NumberWaterSurfaceMaterials
                if (MaterialIndex == GeoParams%WaterSurfaceMaterialID(I))then   
                    ! I did not change this to zdirection
@@ -985,7 +985,7 @@
           SigY = SigY + CalParams%InitialVerticalLoadK0 * CalParams%Multipliers%SolidARealised(1)
 
           !Calculate water pressure
-          if ((Counters%SoilSurfaceNumberofSides > 0) .or. (GeoParams%ApplyInitialWaterSurfaceFromFile == .true.)) then
+          if ((Counters%SoilSurfaceNumberofSides > 0) .or. (GeoParams%ApplyInitialWaterSurfaceFromFile .eqv. .true.)) then
               SigWP = - PhreaticSurfDepth * GammaLiquid * CalParams%Multipliers%GravityRealised
           else
               SigWP = Depth * GammaLiquid * CalParams%Multipliers%GravityRealised

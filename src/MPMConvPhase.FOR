@@ -1710,7 +1710,7 @@
 
             ParticleDisplacement = 0.0
             
-            !if (Particles(ParticleIndex)%MPPrescribedVeloSwitch == .true.) then 
+            !if (Particles(ParticleIndex)%MPPrescribedVeloSwitch .eqv. .true.) then 
             !      !ParticleDisplacement = 0.0
             !     do IDof = 1, NVECTOR
             !         ParticleDisplacement(IDof) = ParticleDisplacement(IDof) + &
@@ -1731,7 +1731,7 @@
                         Multipatch_Connecting_Local_To_Global_ControlPoints(iabs(ElementConnectivities(INode, ElementID,IPatch)), IPatch)
                     DofID = ReducedDof(NodeID) + IDof
                     
-                    if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch == .TRUE.) .and. (CalParams%TimeStep /= 1) ) then 
+                    if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.) .and. (CalParams%TimeStep /= 1) ) then 
                     
                         
                         ParticleDisplacement(IDof) = ParticleDisplacement(IDof) + &
@@ -2050,7 +2050,7 @@
           if (OutsideElement) then ! Particle moved to another element
            
                !while_counter = 0 
-               !do while ( (Success == .false.) .and. (while_counter <5))  
+               !do while ( (Success .eqv. .false.) .and. (while_counter <5))  
                ! Determine new element and new local position of the particle
             call DetermineGlobPosElement(GlobPosArray(ParticleID,:), &
                                          UStepArray(ParticleID,:), &

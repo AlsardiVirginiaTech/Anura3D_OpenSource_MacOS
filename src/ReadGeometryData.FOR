@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soil–water–structure interaction using the material point method (MPM)
+    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -2103,16 +2103,23 @@
           ! Local variables
           !integer(INTEGER_TYPE) :: IError, Nnode
           
-          !Moving mesh 
- 
-          allocate(CalParams%MovingMesh%MeshAreas(2, 3, NDIM * (NDIM - 1) + 2, Counters%NPatches))   
-          allocate(CalParams%MovingMesh%NAreaNodes(Counters%NPatches))
-          allocate(CalParams%MovingMesh%NMovingMeshDirections(Counters%NPatches))
-          allocate(CalParams%MovingMesh%MovingMeshDirection(Counters%NPatches))
-          allocate(CalParams%MovingMesh%NStorageAreas(2,Counters%NPatches))
-          allocate(CalParams%MovingMesh%StructureMaterialID(Counters%NPatches))
-          allocate(CalParams%MovingMesh%MovingMaterialID(Counters%NPatches))
-          allocate(CalParams%MovingMesh%NStructureNodes(Counters%NPatches))
+          !Moving mesh
+
+          ! Allocate the MovingMesh structure itself before its components.
+          ! (MovingMesh has a deferred type parameter; allocating components of
+          ! the unallocated parent is rejected by gfortran.)
+          if (.not. allocated(CalParams%MovingMesh)) then
+            allocate(MovingMeshType(NDIM) :: CalParams%MovingMesh)
+          end if
+
+          allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%MeshAreas(2, 3, NDIM * (NDIM - 1) + 2, Counters%NPatches))
+          allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%NAreaNodes(Counters%NPatches))
+          allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%NMovingMeshDirections(Counters%NPatches))
+          allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%MovingMeshDirection(Counters%NPatches))
+          allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%NStorageAreas(2,Counters%NPatches))
+          allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%StructureMaterialID(Counters%NPatches))
+          allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%MovingMaterialID(Counters%NPatches))
+          allocate(integer(INTEGER_TYPE) :: CalParams%MovingMesh%NStructureNodes(Counters%NPatches))
  
           CalParams%MovingMesh%MeshAreas = 0
           CalParams%MovingMesh%NAreaNodes = 0
@@ -2307,7 +2314,7 @@
           
           ! Loop over patches -----------------------------------------------------------------------------
           
-          if (CalParams%ApplyMovingMesh == .true.) then 
+          if (CalParams%ApplyMovingMesh .eqv. .true.) then 
               
           do IPatch = 1, Counters%NPatches ! loop over patches
           

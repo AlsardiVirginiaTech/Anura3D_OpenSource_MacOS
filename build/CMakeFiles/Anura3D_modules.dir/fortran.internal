@@ -1,0 +1,8 @@
+# The fortran modules provided by this target.
+provides
+ modcounters.mod
+ modglobalconstants.mod
+ modglobaldata.mod
+ modisort.mod
+ modstring.mod
+ modtiming.mod

@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soil–water–structure interaction using the material point method (MPM)
+    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -43,7 +43,13 @@
       use ModGlobalConstants
       use ModReadCalculationData
       use ModString
+#ifdef __INTEL_COMPILER
       use kernel32
+#define ESM_SYMBOL ESM_SYMBOL
+#else
+      use ModDynamicLoading
+#define ESM_SYMBOL "ESM"//char(0)
+#endif
       use ModFileIO
       
       implicit none
@@ -796,7 +802,7 @@ end select
                     if (lib_handle == 0) call Error_NoDLL(UMAT_LINEAR_ELASTICITY) ! error handling
 
                   ! initialise UMAT ! This is a check to see if no error
-                    p = GetProcAddress(lib_handle, "ESM"C) ! TODO: Check to see if multiple materials works ?
+                    p = GetProcAddress(lib_handle, ESM_SYMBOL) ! TODO: Check to see if multiple materials works ?
                     if (p == 0) call Error_NoUMAT(UMAT_LINEAR_ELASTICITY) ! error handling
                   
                   MatParams(I)%SoilModelDLLHandle = lib_handle
@@ -841,7 +847,7 @@ end select
                   if (lib_handle == 0) call Error_NoDLL(UMAT_MOHR_COULOMB_STANDARD) ! error handling
 
                   ! initialise UMAT ! This is a check to see if no error
-                  p = GetProcAddress(lib_handle, "ESM"C) ! TODO: Check to see if multiple materials works ?
+                  p = GetProcAddress(lib_handle, ESM_SYMBOL) ! TODO: Check to see if multiple materials works ?
                   if (p == 0) call Error_NoUMAT(UMAT_MOHR_COULOMB_STANDARD) ! error handling
                   
                   MatParams(I)%SoilModelDLLHandle = lib_handle                  
@@ -887,7 +893,7 @@ end select
                   if (lib_handle == 0) call Error_NoDLL(UMAT_MOHR_COULOMB_TEUNISSEN) ! error handling
 
                   ! initialise UMAT ! This is a check to see if no error
-                  p = GetProcAddress(lib_handle, "ESM"C) ! TODO: Check to see if multiple materials works ?
+                  p = GetProcAddress(lib_handle, ESM_SYMBOL) ! TODO: Check to see if multiple materials works ?
                   if (p == 0) call Error_NoUMAT(UMAT_MOHR_COULOMB_TEUNISSEN) ! error handling
                   
                   MatParams(I)%SoilModelDLLHandle = lib_handle                  
@@ -940,7 +946,7 @@ end select
                   if (lib_handle == 0) call Error_NoDLL(UMAT_MOHR_COULOMB_STRAIN_SOFTENING) ! error handling
 
                   ! initialise UMAT ! This is a check to see if no error
-                  p = GetProcAddress(lib_handle, "ESM"C) ! TODO: Check to see if multiple materials works ?
+                  p = GetProcAddress(lib_handle, ESM_SYMBOL) ! TODO: Check to see if multiple materials works ?
                   if (p == 0) call Error_NoUMAT(UMAT_MOHR_COULOMB_STRAIN_SOFTENING) ! error handling 
                   
                   MatParams(I)%SoilModelDLLHandle = lib_handle                     
@@ -978,7 +984,7 @@ end select
                   if (lib_handle == 0) call Error_NoDLL(UMAT_MODIFIED_CAM_CLAY) ! error handling
 
                   ! initialise UMAT ! This is a check to see if no error
-                  p = GetProcAddress(lib_handle, "ESM"C) ! TODO: Check to see if multiple materials works ?
+                  p = GetProcAddress(lib_handle, ESM_SYMBOL) ! TODO: Check to see if multiple materials works ?
                   if (p == 0) call Error_NoUMAT(UMAT_MODIFIED_CAM_CLAY) ! error handling 
                   
                   MatParams(I)%SoilModelDLLHandle = lib_handle    
@@ -993,7 +999,7 @@ end select
                     if (lib_handle == 0) call Error_NoDLL(DumS) ! error handling
 
                   ! initialise UMAT  This is just for a check to see if no error
-                    p = GetProcAddress(lib_handle, "ESM"C) ! TODO: Check to see if multiple materials works ?
+                    p = GetProcAddress(lib_handle, ESM_SYMBOL) ! TODO: Check to see if multiple materials works ?
                     if (p == 0) call Error_NoUMAT(DumS) ! error handling
                   
                   MatParams(I)%SoilModelDLLHandle = lib_handle
@@ -1041,7 +1047,7 @@ end select
                   !  if (lib_handle == 0) call Error_NoDLL(DumS) ! error handling
                   !
                   !! initialise UMAT  This is just for a check to see if no error
-                  !  p = GetProcAddress(lib_handle, "ESM"C) ! TODO: Check to see if multiple materials works ?
+                  !  p = GetProcAddress(lib_handle, ESM_SYMBOL) ! TODO: Check to see if multiple materials works ?
                   !  if (p == 0) call Error_NoUMAT(DumS) ! error handling
                   !
                   !MatParams(I)%SoilModelDLLHandle = lib_handle
@@ -1095,7 +1101,7 @@ end select
                     if (lib_handle == 0) call Error_NoDLL(UMAT_BINGHAM) ! error handling
                   
                   ! initialise UMAT  This is just for a check to see if no error
-                    p = GetProcAddress(lib_handle, "ESM"C) ! 
+                    p = GetProcAddress(lib_handle, ESM_SYMBOL) ! 
                     if (p == 0) call Error_NoUMAT(UMAT_BINGHAM) ! error handling
                   
                   MatParams(I)%SoilModelDLLHandle = lib_handle

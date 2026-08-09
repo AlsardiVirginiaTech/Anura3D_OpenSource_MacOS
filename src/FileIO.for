@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soil–water–structure interaction using the material point method (MPM)
+    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -139,7 +139,7 @@
 
           NameIn = Trim(FileName) // ' '
           call GetOrMakeFileName(NameIn, NameOut)
-          open(FileUnit, FILE = NameOut, FORM = 'UNFORMATTED', ACCESS = 'SEQUENTIAL', ACTION = 'WRITE', CONVERT = 'BIG_ENDIAN', RECORDTYPE = 'STREAM', BUFFERED = 'YES', IOSTAT = ios)
+          open(FileUnit, FILE = NameOut, FORM = 'UNFORMATTED', ACCESS = 'SEQUENTIAL', ACTION = 'WRITE', CONVERT = 'BIG_ENDIAN', IOSTAT = ios)
           call Assert( ios == 0, 'Error opening file: ' // trim(FileName) )
 
         end subroutine FileOpenWriteBinary

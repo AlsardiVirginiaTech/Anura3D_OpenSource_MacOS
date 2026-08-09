@@ -8,7 +8,7 @@
       !
 	  !
 	  !	  Anura3D - Numerical modelling and simulation of large deformations 
-	  !   and soil–water–structure interaction using the material point method (MPM)
+	  !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
       !
 	  !	  Copyright (C) 2022  Members of the Anura3D MPM Research Community 
 	  !   (See Contributors file "Contributors.txt")
@@ -47,6 +47,7 @@
       use ModReadCalculationData
       use ModMPMData
       use ModParticle
+      use ModTempParticleStorage
       use ModMeshInfo
       use ModWriteTestData
       use ModEmptyElements
@@ -255,7 +256,8 @@
      
           integer(INTEGER_TYPE), intent(in) :: NUpdateParticles
           ! Local variables
-          type(ParticleType(:,:,:)), dimension(:), allocatable :: TempParticles
+          ! TempParticles is now a module variable in ModMPMData
+          ! (gfortran cannot deallocate local PDT arrays, see DestroyTempParticles)
           integer(INTEGER_TYPE), allocatable::TempElementIDArray(:), TempPatchIDArray(:), TempIDArray(:), TempEntityIDArray(:), TempMaterialIDArray(:),TempMaterialPointTypeArray(:)
           real(REAL_TYPE), allocatable :: TempUArray(:,:), TempUStepArray(:,:), TempShapeValuesArray(:,:), TempUPhaseArray(:,:)
           real(REAL_TYPE), allocatable :: TempGlobPosArray(:,:), TempVelocityArray(:,:)
@@ -301,7 +303,7 @@
           
           ! TempParticles = Particles
           do i = 1, Counters%NParticles 
-              TempParticles(i) = CopyParticle(Particles(i), i)
+              call CopyParticle(TempParticles(i), Particles(i), i)
           end do
           
           TempElementIDArray = ElementIDArray
@@ -329,7 +331,8 @@
           TempMassWaterArray = MassWaterArray
 
           ! Destroy old particle data
-          deallocate(Particles, stat = IError)
+          ! (isolated subroutine: gfortran ICEs on PDT deallocate with stat=, see ModMPMData)
+          call DestroyParticlesArray()
           deallocate(ElementIDArray, stat = IError)
           
           ! Multipatch generalization
@@ -435,7 +438,7 @@
                ! end if   
                           
             if (TempParticles(I)%Kind/=REMOVEDPARTICLE) then
-              Particles(NewParticleIndex) = CopyParticle(TempParticles(I), TempIDArray(I))
+              call CopyParticle(Particles(NewParticleIndex), TempParticles(I), TempIDArray(I))
               ElementIDArray(NewParticleIndex) = TempElementIDArray(I) 
               
               PatchIDArray(NewParticleIndex) = TempPatchIDArray(I)
@@ -464,9 +467,8 @@
           end do
           
           ! Destroy temporary copies
-          if (allocated(TempParticles)) then
-            deallocate(TempParticles, stat = IError)
-          end if
+          ! (isolated subroutine: gfortran ICEs on PDT deallocate with stat=, see ModMPMData)
+          call DestroyTempParticles()
 
           if (allocated(TempElementIDArray)) then
              deallocate(TempElementIDArray, stat = IError)
@@ -687,8 +689,8 @@
             call GiveError('[subroutine CreateParticleData] Empty element algorithm not available for 2-layer formulation.')
           end if
           
-          Particles(ParticleIndex) = &
-            InitParticle(MaterialID, &
+          call InitParticle(Particles(ParticleIndex), &
+                         MaterialID, &
                          MaterialPointType, &
                          0.d0, &
                          LocPos, &

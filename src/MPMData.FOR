@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soil–water–structure interaction using the material point method (MPM)
+    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -490,7 +490,7 @@
 
         
         StartingValue = 0
-        if ( (FirstTimeGetParticleIndex == .false.)) then  !(CalParams%IStep == 1) .and. (CalParams%TimeStep == 1) .and.
+        if ( (FirstTimeGetParticleIndex .eqv. .false.)) then  !(CalParams%IStep == 1) .and. (CalParams%TimeStep == 1) .and.
 
         do ParticleIndex = 1, Counters%NParticles 
             
@@ -604,8 +604,8 @@
         !do IAEl = 1, Counters%NAEl
         
         StartingValue = 0
-        if ( (FirstTimeGetParticleIndex == .false.)) then  !(CalParams%IStep == 1) .and. (CalParams%TimeStep == 1) .and.
-        !if ((CalParams%IStep == 1) .and. (CalParams%TimeStep == 1) .and. (FirstTimeGetParticleIndex == .false.)) then 
+        if ( (FirstTimeGetParticleIndex .eqv. .false.)) then  !(CalParams%IStep == 1) .and. (CalParams%TimeStep == 1) .and.
+        !if ((CalParams%IStep == 1) .and. (CalParams%TimeStep == 1) .and. (FirstTimeGetParticleIndex .eqv. .false.)) then 
 
         !if (.not.allocated(GetParticleIndex)) then
         do IPatch = 1, Counters%NPatches ! Loop over patches
@@ -1103,7 +1103,7 @@
 
                     
                         
-                                if (SuccessMPAssignment(IMP) == .true.) cycle
+                                if (SuccessMPAssignment(IMP) .eqv. .true.) cycle
             
                         ! to prevent looping over this again
                         !if (ElementIDArray(IMP)>0) cycle
@@ -1367,9 +1367,11 @@
             deallocate(EleParticles, stat = IError)
           end if
           
-          if (allocated(Particles) ) then
-            deallocate(Particles, stat = IError)
-          end if
+          ! NOTE: the Particles array (parameterized derived type) must be
+          ! deallocated in an isolated subroutine with no stat= and no other
+          ! locals: gfortran (through at least 14.x) hits an internal compiler
+          ! error otherwise. See DestroyParticlesArray below.
+          call DestroyParticlesArray()
          
          !Fileds stripped from Particle datatype
          if (allocated(IDArray) ) then
@@ -1465,6 +1467,30 @@
           end if
           
         end subroutine DestroyHouseKeeping
+
+
+        subroutine DestroyParticlesArray()
+        !**********************************************************************
+        !
+        !    Function:  Deallocates the Particles array.
+        !
+        !    NOTE: kept deliberately minimal (no stat=, no local variables).
+        !    gfortran (through at least 14.x) hits an internal compiler error
+        !    when a parameterized-derived-type array is deallocated in a scope
+        !    that also contains a stat= variable or other locals.
+        !
+        !**********************************************************************
+
+        implicit none
+
+          if (allocated(Particles)) deallocate(Particles)
+
+        end subroutine DestroyParticlesArray
+
+
+        ! NOTE: TempParticles and DestroyTempParticles live in the separate
+        ! module ModTempParticleStorage (see TempParticleStorage.FOR).
+        ! Placing a second PDT destroyer in this module crashes gfortran.
 
 
         subroutine DetermineDecimalFactor()
