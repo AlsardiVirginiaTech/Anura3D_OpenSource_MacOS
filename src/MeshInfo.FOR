@@ -481,7 +481,11 @@
           
           ! open GOM file
           FileName=Trim(CalParams%FileNames%ProjectName)//'.GOM'
-          if (FExist(FileName)) open(GOMunit, FILE=FileName)
+          if (FExist(FileName)) then
+            open(GOMunit, FILE=FileName)
+          else
+            call GiveError('GOM file does not exist!' // NEW_LINE('A') // 'required GOM file: ' // trim(FileName) )
+          end if
 
           do
             read(GOMunit,'(A)') TName !reading from GOM file 

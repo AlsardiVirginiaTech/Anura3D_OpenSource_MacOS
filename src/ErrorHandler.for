@@ -225,7 +225,11 @@
         errorType = ERROR
       endif
 
-      TimeStepMSG = '(time step: ' // trim(String(CalParams%TimeStep)) // ')'
+      if (allocated(CalParams)) then
+        TimeStepMSG = '(time step: ' // trim(String(CalParams%TimeStep)) // ')'
+      else
+        TimeStepMSG = ''
+      endif
       if (errorType == WARNING) then
         message = WARNING_MSG // trim(TimeStepMSG) //' ' // trim(messageInput)
       elseif(errorType == ERROR) then
@@ -247,9 +251,11 @@
       if (errorType == ERROR) then
         call flush(OUTunit)
         call flush(LOGunit)
-        if (CalParams%TimeStep > 1) then
-          write (*,fmt='(a)') 'trying to write results...'
-          call WriteTimeStepResults(.true.)
+        if (allocated(CalParams)) then
+          if (CalParams%TimeStep > 1) then
+            write (*,fmt='(a)') 'trying to write results...'
+            call WriteTimeStepResults(.true.)
+          endif
         endif
         STOP
       endif
