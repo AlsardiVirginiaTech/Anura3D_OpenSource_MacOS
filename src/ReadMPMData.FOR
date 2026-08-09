@@ -1891,7 +1891,7 @@
 
                     do IParticle = 1, Counters%NParticles 
                         
-                        read(FileUnit) (GetParticleIndex(IParticle, IElement, IPatch))
+                        read(FileUnit) GetParticleIndex(IParticle, IElement, IPatch)
             
                     end do 
                     

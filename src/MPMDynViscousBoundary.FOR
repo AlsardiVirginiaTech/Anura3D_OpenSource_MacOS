@@ -516,10 +516,10 @@
                             Vec2(IDim) = NodalOriginalCoord(DummyNode(3), IDim, IPatch_Temporary) - NodalOriginalCoord(DummyNode(1), IDim, IPatch)                    
                           end do
                           Normal = CrossProduct(Vec1, Vec2) ! calculate the normal and determine its direction
-                          ScalarProduct(1) = DotProduct((/1.0,0.0,0.0/),Normal,3) 
-                          ScalarProduct(2) = DotProduct((/0.0,1.0,0.0/),Normal,3) 
-                          ScalarProduct(3) = DotProduct((/0.0,0.0,1.0/),Normal,3)
-                          ! calculate area of absorbing boundary surface 
+                          ScalarProduct(1) = DotProduct((/1.0_REAL_TYPE,0.0_REAL_TYPE,0.0_REAL_TYPE/),Normal,3)
+                          ScalarProduct(2) = DotProduct((/0.0_REAL_TYPE,1.0_REAL_TYPE,0.0_REAL_TYPE/),Normal,3)
+                          ScalarProduct(3) = DotProduct((/0.0_REAL_TYPE,0.0_REAL_TYPE,1.0_REAL_TYPE/),Normal,3)
+                          ! calculate area of absorbing boundary surface
                           ElmSurfaceArea(ElementID) = Length(Normal, 3) / 2.0
                           ! calculate contribution to each adjacent node
                           VisNodSurAraSld(INode) = VisNodSurAraSld(INode) + ( ElmSurfaceArea (ElementID) / 3.0 )
@@ -620,10 +620,10 @@
                             Vec2(IDim) = NodalOriginalCoord(DummyNode(3), IDim, IPatch) - NodalOriginalCoord(DummyNode(1), IDim, IPatch)                    
                           end do
                           Normal = CrossProduct(Vec1, Vec2) ! calculate the normal and determine its direction
-                          ScalarProduct(1) = DotProduct((/1.0,0.0,0.0/),Normal,3)
-                          ScalarProduct(2) = DotProduct((/0.0,1.0,0.0/),Normal,3)
-                          ScalarProduct(3) = DotProduct((/0.0,0.0,1.0/),Normal,3)
-                          ! calculate area of absorbing boundary surface 
+                          ScalarProduct(1) = DotProduct((/1.0_REAL_TYPE,0.0_REAL_TYPE,0.0_REAL_TYPE/),Normal,3)
+                          ScalarProduct(2) = DotProduct((/0.0_REAL_TYPE,1.0_REAL_TYPE,0.0_REAL_TYPE/),Normal,3)
+                          ScalarProduct(3) = DotProduct((/0.0_REAL_TYPE,0.0_REAL_TYPE,1.0_REAL_TYPE/),Normal,3)
+                          ! calculate area of absorbing boundary surface
                           ElmSurfaceArea(ElementID) = Length(Normal, 3) / 2.0
                           ! calculate contribution to each adjacent node
                           VisNodSurAraWat(INode) = VisNodSurAraWat(INode) + ( ElmSurfaceArea(ElementID) / 3.0 )
@@ -727,10 +727,10 @@
                             Vec2(IDim) = NodalOriginalCoord(DummyNode(3), IDim, IPatch_Temporary) - NodalOriginalCoord(DummyNode(1), IDim, IPatch_Temporary)                    
                           end do
                           Normal = CrossProduct(Vec1, Vec2) ! calculate the normal and determine its direction
-                          ScalarProduct(1) = DotProduct((/1.0,0.0,0.0/),Normal,3)
-                          ScalarProduct(2) = DotProduct((/0.0,1.0,0.0/),Normal,3)
-                          ScalarProduct(3) = DotProduct((/0.0,0.0,1.0/),Normal,3)
-                          ! calculate area of absorbing boundary surface 
+                          ScalarProduct(1) = DotProduct((/1.0_REAL_TYPE,0.0_REAL_TYPE,0.0_REAL_TYPE/),Normal,3)
+                          ScalarProduct(2) = DotProduct((/0.0_REAL_TYPE,1.0_REAL_TYPE,0.0_REAL_TYPE/),Normal,3)
+                          ScalarProduct(3) = DotProduct((/0.0_REAL_TYPE,0.0_REAL_TYPE,1.0_REAL_TYPE/),Normal,3)
+                          ! calculate area of absorbing boundary surface
                           ElmSurfaceArea(ElementID) = Length(Normal, 3) / 2.0
                           ! calculate contribution to each adjacent node
                           VisNodSurAraGas(INode) = VisNodSurAraGas(INode) + ( ElmSurfaceArea(ElementID) / 3.0 )

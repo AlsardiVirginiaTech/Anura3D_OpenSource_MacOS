@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
+    !   and soil–water–structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -52,7 +52,9 @@
       use ModWriteNodalData
       use ModWriteMPMData 
       use ModFeedback
+#ifdef __INTEL_COMPILER
       use WriteOutput_GiD
+#endif
       use ModString
 #ifdef __INTEL_COMPILER
       use kernel32
@@ -111,6 +113,7 @@
           PhaseDisplacementSoil = TotalDisplacementSoil
 
           if (WriteQuickOutput) then ! QuickCheckOutput: time step result at first time step of first load step
+#ifdef __INTEL_COMPILER
               if (CalParams%Visualization=='GiD-ASCII') then
                   call WriteGiDMeshASCII
                   call WriteGiDResultsASCII
@@ -122,6 +125,9 @@
               else
                   call WriteResultsOfOneStep(Filename)
               endif
+#else
+              call WriteResultsOfOneStep(Filename)
+#endif
               
                 
           endif
@@ -231,6 +237,7 @@
           call WriteResultData(Filename)
 
           if(NFORMULATION==1) then
+#ifdef __INTEL_COMPILER
               if (CalParams%Visualization=='GiD-ASCII') then
                   call WriteGiDMeshASCII
                   call WriteGiDResultsASCII
@@ -242,6 +249,9 @@
               else
                   call WriteResultsOfOneStep(Filename)
               endif
+#else
+              call WriteResultsOfOneStep(Filename)
+#endif
           else
               call WriteVTKOutput_2LayForm_Solid() ! VTK output Solid Material Point
               call WriteVTKOutput_2LayForm_Liquid() ! VTK output Liquid Material Point
@@ -344,6 +354,9 @@
 #endif
       integer(4) length
       Integer(8) I8_Total, I8_Avail
+#ifndef __INTEL_COMPILER
+      integer(4) status
+#endif
 
       if (S(2:2)/=':') then
         !  Get current directory

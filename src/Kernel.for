@@ -73,7 +73,9 @@
       use ModWriteResultData
       use ModTwoLayerFormulation
       use ModDynamicExplicit
+#ifdef __INTEL_COMPILER
       use ModQuasiStaticImplicit
+#endif
       use ModString
       use ModTiming
       use ModNURBS
@@ -206,7 +208,9 @@
       call InitialiseAbsorbingBoundariesForcesAndStiffness() ! only if ApplyAbsorbingBoundary
       call TwoLayerData%DetermineConcentrationRatios() !For Double Point formulation
       call TwoLayerData%DetermineTwoLayerStatus() ! assign a Liquid or Solid status to the MP
+#ifdef __INTEL_COMPILER
       call InitialiseQuasiStaticImplicit() ! contain calls to subroutine use in Quasi-Static procedure
+#endif
 	  call InitialiseVelocityonMP() ! only if ApplyInitialVelocityonMP
       call InitialiseRigidBody() ! only if IsRigidBody
       call InitialiseSurfaceReaction() !read GOM file and determine surface reactions
@@ -237,11 +241,19 @@
         call ApplyExcavation()
 
         !********** 4b - TIME STEP / ITERATION LOOP ******************************
+#ifdef __INTEL_COMPILER
         if (CalParams%ApplyImplicitQuasiStatic) then ! Iteration loop quasi-static MPM
           call RunImplicitQuasiStaticLoadStep()
         else ! Time step loop dynamic MPM
           call RunExplicitDynamicLoadStep()
         end if
+#else
+        if (CalParams%ApplyImplicitQuasiStatic) then ! Iteration loop quasi-static MPM
+          call GiveError('Quasi-static implicit analysis requires the Intel MKL solver, not available in this build.')
+        else ! Time step loop dynamic MPM
+          call RunExplicitDynamicLoadStep()
+        end if
+#endif
 
 #ifdef __INTEL_COMPILER        
         UserPressedKey = PeekCharQQ()
@@ -283,7 +295,9 @@
       call DestroyMeshAdjustment()
       call DestroyMaterialParameters()
       call TwoLayerData%Destroy()
+#ifdef __INTEL_COMPILER
       call DestroyQuasiStaticImplicit()
+#endif
       call GiveMessage('Calculation finished.')
       call CloseTextOutputFiles()
       call DestroyPrescribedNodalVeloData()

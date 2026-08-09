@@ -66,7 +66,8 @@
       implicit none
       
       integer(INTEGER_TYPE), intent(in) :: IEl, IPoint
-      !integer(INTEGER_TYPE), dimension(ELEMENTNODES, Counters%Nel), intent(in) :: ICon    
+      integer(INTEGER_TYPE), intent(in) :: IPatch
+      !integer(INTEGER_TYPE), dimension(ELEMENTNODES, Counters%Nel), intent(in) :: ICon
       !integer(INTEGER_TYPE), dimension(ELEMENTNODES, nel_NURBS(IPatch)), intent(in) :: ICon
       integer(INTEGER_TYPE), dimension(ELEMENTNODES, Counters%NEl(IPatch)), intent(in) :: ICon
 
@@ -82,10 +83,9 @@
       real(REAL_TYPE), dimension(NVECTOR) :: U
       real(REAL_TYPE), dimension(ELEMENTNODES) :: ShapeValues
       
-      ! Multipatch variables 
+      ! Multipatch variables
       integer(INTEGER_TYPE) :: IPatch_Temporary
-      integer(INTEGER_TYPE), intent(in) :: IPatch
-      
+
       Eps = 0.0
 
       select case(NDIM)
@@ -153,22 +153,22 @@
       implicit none
       
       integer(INTEGER_TYPE), intent(in) :: IEl, IPoint
+      integer(INTEGER_TYPE), intent(in) :: IPatch
       integer(INTEGER_TYPE), dimension(ELEMENTNODES, Counters%NEl(IPatch)), intent(in) :: ICon
 
       real(REAL_TYPE), dimension(NVECTOR, ELEMENTNODES), intent(in) :: B
       real(REAL_TYPE), dimension(Counters%N), intent(in) :: Disp
       integer(INTEGER_TYPE), dimension(Counters%NodTot(IPatch)+1), intent(in) :: NDofEx
       real(REAL_TYPE), dimension(NDIM,NDIM), intent(out) :: RelativeDeformationGradient
-      
+
       ! local variables
       integer(INTEGER_TYPE) :: J, NN, ParticleIndex
       real(REAL_TYPE) :: Position
       real(REAL_TYPE), dimension(NVECTOR) :: U
       real(REAL_TYPE), dimension(ELEMENTNODES) :: ShapeValues
-      
-      ! Multipatch variables 
+
+      ! Multipatch variables
       integer(INTEGER_TYPE) :: IPatch_Temporary
-      integer(INTEGER_TYPE), intent(in) :: IPatch 
       integer(INTEGER_TYPE) :: IDim
     
       RelativeDeformationGradient = 0.0

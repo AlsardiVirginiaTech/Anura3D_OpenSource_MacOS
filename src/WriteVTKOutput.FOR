@@ -53,8 +53,70 @@ module ModWriteVTKOutput
 
     implicit none
 
+    ! gfortran workaround: WriteVTKScalarDataPointer/VectorDataPointer/TensorDataPointer
+    ! are called throughout this module without a Float/Integer distinction, but only
+    ! WriteVTKFloatXxxDataPointer/WriteVTKIntegerXxxDataPointer procedure pointers exist
+    ! (see SetVTKPointers below and their declarations in ModGlobalConstants). Provide the
+    ! missing generic dispatch explicitly.
+    interface WriteVTKScalarDataPointer
+        module procedure WriteVTKScalarDataPointerReal
+        module procedure WriteVTKScalarDataPointerInt
+    end interface WriteVTKScalarDataPointer
+
+    interface WriteVTKVectorDataPointer
+        module procedure WriteVTKVectorDataPointerReal
+        module procedure WriteVTKVectorDataPointerInt
+    end interface WriteVTKVectorDataPointer
+
+    interface WriteVTKTensorDataPointer
+        module procedure WriteVTKTensorDataPointerReal
+        module procedure WriteVTKTensorDataPointerInt
+    end interface WriteVTKTensorDataPointer
+
     contains
-       
+
+    subroutine WriteVTKScalarDataPointerReal(DataSetName, DataSet)
+        implicit none
+        character(len=*), intent(in) :: DataSetName
+        real(REAL_TYPE), dimension(:), intent(in) :: DataSet
+        call WriteVTKFloatScalarDataPointer(DataSetName, DataSet)
+    end subroutine WriteVTKScalarDataPointerReal
+
+    subroutine WriteVTKScalarDataPointerInt(DataSetName, DataSet)
+        implicit none
+        character(len=*), intent(in) :: DataSetName
+        integer(INTEGER_TYPE), dimension(:), intent(in) :: DataSet
+        call WriteVTKIntegerScalarDataPointer(DataSetName, DataSet)
+    end subroutine WriteVTKScalarDataPointerInt
+
+    subroutine WriteVTKVectorDataPointerReal(DataSetName, DataSet)
+        implicit none
+        character(len=*), intent(in) :: DataSetName
+        real(REAL_TYPE), dimension(:,:), intent(in) :: DataSet
+        call WriteVTKFloatVectorDataPointer(DataSetName, DataSet)
+    end subroutine WriteVTKVectorDataPointerReal
+
+    subroutine WriteVTKVectorDataPointerInt(DataSetName, DataSet)
+        implicit none
+        character(len=*), intent(in) :: DataSetName
+        integer(INTEGER_TYPE), dimension(:,:), intent(in) :: DataSet
+        call WriteVTKIntegerVectorDataPointer(DataSetName, DataSet)
+    end subroutine WriteVTKVectorDataPointerInt
+
+    subroutine WriteVTKTensorDataPointerReal(DataSetName, DataSet)
+        implicit none
+        character(len=*), intent(in) :: DataSetName
+        real(REAL_TYPE), dimension(:,:,:), intent(in) :: DataSet
+        call WriteVTKFloatTensorDataPointer(DataSetName, DataSet)
+    end subroutine WriteVTKTensorDataPointerReal
+
+    subroutine WriteVTKTensorDataPointerInt(DataSetName, DataSet)
+        implicit none
+        character(len=*), intent(in) :: DataSetName
+        integer(INTEGER_TYPE), dimension(:,:,:), intent(in) :: DataSet
+        call WriteVTKIntegerTensorDataPointer(DataSetName, DataSet)
+    end subroutine WriteVTKTensorDataPointerInt
+
     subroutine SetVTKPointers()
     !**********************************************************************
     !
@@ -918,7 +980,11 @@ module ModWriteVTKOutput
     
 
     do NodeID = 1, NumberNodes ! loop over material points
-        DataSetVector_ControlPoints(NodeID,:) = ActiveNode(NodeID,IPatch)
+        if (ActiveNode(NodeID,IPatch)) then
+          DataSetVector_ControlPoints(NodeID,:) = 1
+        else
+          DataSetVector_ControlPoints(NodeID,:) = 0
+        end if
     end do
     call WriteVTKVectorDataPointer('active_node_NURBScontrolpoints',DataSetVector_ControlPoints)
     

@@ -6805,7 +6805,7 @@
                     
                     ! According to Tran and Solowski (2020), this time intergration to obtain velocity was done at the nodal level...
                     ! However, in the FLIP approach, we do not do this! <-- why is it unstable 
-                    if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch== 1) .and. (CalParams%TimeStep /=1) ) then  
+                    if ( (CalParams%ApplyGeneralizedAlphaTimeScheme%Switch .eqv. .TRUE.) .and. (CalParams%TimeStep /=1) ) then
                         
                         TotalVelocitySoil(IDOF, J) = TotalVelocitySoil(IDOF, J) + &
                          ( CalParams%TimeIncrement * (CalParams%ApplyGeneralizedAlphaTimeScheme%Gamma*AccelerationSoil(IDOF, J) + &

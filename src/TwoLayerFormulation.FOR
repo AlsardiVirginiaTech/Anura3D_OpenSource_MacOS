@@ -48,16 +48,16 @@
       implicit none
       
         type TwoLayerElementType(vsize)
-        
+
           integer(INTEGER_TYPE), LEN :: vsize
-          integer(INTEGER_TYPE) :: ContainedMaterialTypes = ContainedMaterialTypeUNDEFINED ! solid, liquid, or both
+          integer(INTEGER_TYPE) :: ContainedMaterialTypes ! solid, liquid, or both; default ContainedMaterialTypeUNDEFINED set after allocation (gfortran workaround)
           logical :: IsBoundaryOfSolidElements, IsBoundaryOfLiquidElements, IsSolidMPwithPhaseLiquidInElement
-          real(REAL_TYPE) :: ConcentrationRatioLiquidL = 0.0
-          real(REAL_TYPE) :: ConcentrationRatioSolidL = 0.0
-          real(REAL_TYPE) :: ConcentrationRatioLiquidS = 0.0
-          real(REAL_TYPE) :: ConcentrationRatioSolidS = 0.0
-          real(REAL_TYPE), dimension(vsize) :: GradientPorosityL 
-        
+          real(REAL_TYPE) :: ConcentrationRatioLiquidL ! default 0.0 set after allocation (gfortran workaround)
+          real(REAL_TYPE) :: ConcentrationRatioSolidL ! default 0.0 set after allocation (gfortran workaround)
+          real(REAL_TYPE) :: ConcentrationRatioLiquidS ! default 0.0 set after allocation (gfortran workaround)
+          real(REAL_TYPE) :: ConcentrationRatioSolidS ! default 0.0 set after allocation (gfortran workaround)
+          real(REAL_TYPE), dimension(vsize) :: GradientPorosityL
+
         end type TwoLayerElementType
       
         type TwoLayerNodeType
@@ -104,17 +104,28 @@
           implicit none
           
             class(TwoLayerType), intent(inout) :: This
-            
+
             ! local variables
             integer(INTEGER_TYPE) :: IError
-        
+            ! gfortran workaround: allocating This%Elements directly through the
+            ! polymorphic (class) dummy This with an explicit PDT type-spec triggers
+            ! a spurious "type incompatible with typespec" error; allocate a
+            ! monomorphic local of the same concrete type instead and move_alloc it in.
+            type(TwoLayerElementType(NVECTOR)), dimension(:), allocatable :: TempElements
+
             if (.not.(NFORMULATION==2)) RETURN
-            
+
             if (allocated(This%Elements)) then
               deallocate(This%Elements, stat = IError)
             end if
-            allocate(TwoLayerElementType(NVECTOR)::This%Elements(Counters%Sum_NEl), stat = IError)
-            
+            allocate(TempElements(Counters%Sum_NEl), stat = IError)
+            TempElements(:)%ContainedMaterialTypes = ContainedMaterialTypeUNDEFINED
+            TempElements(:)%ConcentrationRatioLiquidL = 0.0
+            TempElements(:)%ConcentrationRatioSolidL = 0.0
+            TempElements(:)%ConcentrationRatioLiquidS = 0.0
+            TempElements(:)%ConcentrationRatioSolidS = 0.0
+            call move_alloc(TempElements, This%Elements)
+
             if (allocated(This%Nodes)) then
               deallocate(This%Nodes, stat = IError)
             end if

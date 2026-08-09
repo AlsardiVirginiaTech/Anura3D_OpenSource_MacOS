@@ -4,7 +4,11 @@ project(Anura3D Fortran C)
 # Set Fortran standard and free-form format for .FOR files
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
 # Use -std=legacy to support Windows Fortran extensions (logical comparisons with ==, etc.)
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -std=legacy -ffree-form -ffree-line-length-none -cpp -fcray-pointer")
+# -fdefault-real-8/-fdefault-double-8 match the Windows build's RealKIND=realKIND8 setting
+# (Anura3D.vfproj and the soil model .vfproj files): legacy code (UMAT-style soil models,
+# ExternalSoilModel.for) declares locals as plain untyped REAL, relying on the compiler's
+# default real size to make them double precision like the rest of the program.
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -std=legacy -ffree-form -ffree-line-length-none -cpp -fcray-pointer -fdefault-real-8 -fdefault-double-8")
 set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
 set(CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -fbacktrace")
 
@@ -26,6 +30,7 @@ include_directories(${CMAKE_Fortran_MODULE_DIRECTORY})
 # Source files - include ALL source files
 set(ANURA3D_SOURCES
     src/GlobalConstants.FOR
+    src/RigidBody.f
     src/DynamicLoading.for
     src/Anura3D.for
     src/Kernel.for
@@ -37,18 +42,18 @@ set(ANURA3D_SOURCES
     src/getversion.for
     src/InitialiseElementType.for
     src/ExternalSoilModel.for
-    src/WriteOutPut_GiD.for
     src/VS/NURBS.for
     src/VS/PM4Sand.FOR
 )
 
-# Additional source files from Soilmodels
-file(GLOB SOILMODEL_SOURCES
-    "src/Soilmodels/*.FOR"
-    "src/Soilmodels/*.f"
-    "src/Soilmodels/ThirdPartyLibraries/*.for"
-)
-list(APPEND ANURA3D_SOURCES ${SOILMODEL_SOURCES})
+# NOTE: src/Soilmodels/*.f, *.FOR and ThirdPartyLibraries/*.for are NOT part of the
+# Anura3D executable on Windows either (see Anura3D.vfproj) - each external UMAT soil
+# model (A3DBingham, A3DMohrCoulombStandard, ...) builds as its own separate .dll,
+# loaded dynamically at runtime via DynamicLoading.for. Several of them define the
+# same helper routine names (UMAT, MatVec, prnsig, ...), so statically linking them
+# all into one executable is not possible. Building them as macOS .dylib targets is a
+# separate follow-up task; the built-in soil models (ExternalSoilModel.for, PM4Sand)
+# are unaffected.
 
 # Find additional .FOR files in src directory
 file(GLOB ADDITIONAL_SOURCES
@@ -56,6 +61,16 @@ file(GLOB ADDITIONAL_SOURCES
 )
 # Remove duplicates (GlobalConstants already explicitly listed)
 list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "GlobalConstants")
+# WriteOutPut_GiD depends on the Windows-only gidpost library (no macOS build available)
+list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "WriteOutPut_GiD")
+# Not part of the Windows Anura3D.vfproj build (unused/orphaned modules, not referenced
+# by any other compiled file); stale relative to the current multipatch data layout.
+list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "MPMDYNConsolidation")
+list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "MPMDYNUnsatConsolidation")
+list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "MPMDynamicImplicit")
+# MPMQuasiStaticImplicit depends on ModSolver (src/Solver), which wraps the Intel MKL
+# Pardiso sparse solver (mkl_dss.f90). No MKL build exists for this platform.
+list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "MPMQuasiStaticImplicit")
 list(APPEND ANURA3D_SOURCES ${ADDITIONAL_SOURCES})
 
 # Remove duplicates

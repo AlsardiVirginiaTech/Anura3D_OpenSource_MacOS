@@ -398,7 +398,7 @@
                                            IntegrationWeight, & ! integration weight
                                            LocPos, & ! local coordinate
                                            MATERIALPARTICLE, & ! material or virtual material point
-                                           -1.0, & !  mass assigned to material point in case of virtual material point
+                                           -1.0D0, & !  mass assigned to material point in case of virtual material point
                                            CalParams%GravityData%GAccel, & ! gravity acceleration
                                            CalParams%GravityData%GravityVector, & ! direction-vector of gravitational force
                                            DampingFactor, & ! element based damping factor
@@ -703,7 +703,7 @@
                                            IntegrationWeight, & ! integration weight
                                            LocPos, & ! local coordinate
                                            MATERIALPARTICLE, & ! material or virtual material point
-                                           -1.0, & !  mass assigned to material point in case of virtual material point
+                                           -1.0D0, & !  mass assigned to material point in case of virtual material point
                                            CalParams%GravityData%GAccel, & ! gravity acceleration
                                            CalParams%GravityData%GravityVector, & ! direction-vector of gravitational force
                                            DampingFactor, & ! element based damping factor

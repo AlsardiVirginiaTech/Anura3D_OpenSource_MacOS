@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
+    !   and soil–water–structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -2170,15 +2170,15 @@
           ! Local variables
           integer(INTEGER_TYPE) :: IError, Nnode
 
-          allocate( CalParams%PrescribedVelo%NNodePrescribedVelo(Counters%NPatches) )
-          CalParams%PrescribedVelo%NNodePrescribedVelo = 0 ! --> need multipatch generalization 
-          
+          allocate( integer(INTEGER_TYPE) :: CalParams%PrescribedVelo%NNodePrescribedVelo(Counters%NPatches) )
+          CalParams%PrescribedVelo%NNodePrescribedVelo = 0 ! --> need multipatch generalization
+
           !Prescribed velocity ---------> Node
-          allocate( CalParams%PrescribedVelo%NodePrescribedVelo(NURBS%Maximum_NNodePrescribedVelocity, Counters%NPatches), stat = IError)
+          allocate( integer(INTEGER_TYPE) :: CalParams%PrescribedVelo%NodePrescribedVelo(NURBS%Maximum_NNodePrescribedVelocity, Counters%NPatches), stat = IError)
           CalParams%PrescribedVelo%NodePrescribedVelo = -1
-          allocate( CalParams%PrescribedVelo%NodalPrescribedVelocityValue(NURBS%Maximum_NNodePrescribedVelocity, NVECTOR, Counters%NPatches), stat = IError)
+          allocate( real(REAL_TYPE) :: CalParams%PrescribedVelo%NodalPrescribedVelocityValue(NURBS%Maximum_NNodePrescribedVelocity, NVECTOR, Counters%NPatches), stat = IError)
           CalParams%PrescribedVelo%NodalPrescribedVelocityValue = 0.0
-          allocate( CalParams%PrescribedVelo%NodalPrescribedVelocityDirection(NURBS%Maximum_NNodePrescribedVelocity, NVECTOR, Counters%NPatches), stat = IError)
+          allocate( real(REAL_TYPE) :: CalParams%PrescribedVelo%NodalPrescribedVelocityDirection(NURBS%Maximum_NNodePrescribedVelocity, NVECTOR, Counters%NPatches), stat = IError)
           CalParams%PrescribedVelo%NodalPrescribedVelocityDirection = 1
           
           

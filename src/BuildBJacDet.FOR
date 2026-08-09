@@ -64,7 +64,8 @@
       implicit none
       
       integer(INTEGER_TYPE), intent(in) :: Int
-      integer(INTEGER_TYPE) :: IEl, ICon(ELEMENTNODES, Counters%NEl(IPatch))!ICon(ELEMENTNODES, Counters%NEL) 
+      integer(INTEGER_TYPE), intent(in) :: IPatch
+      integer(INTEGER_TYPE) :: IEl, ICon(ELEMENTNODES, Counters%NEl(IPatch))!ICon(ELEMENTNODES, Counters%NEL)
       !real(REAL_TYPE) :: Co(Counters%NodTot, NDIM), B(NDIM, ELEMENTNODES), Det, WtN !-> Det is not an input, it is calculated in this routine 
       real(REAL_TYPE) :: Co(NURBS%Maximum_NControlPoints, NDIM, Counters%NPatches), B(NDIM, ELEMENTNODES), Det, WtN !-> Det is not an input, it is calculated in this routine 
       ! local variables
@@ -100,7 +101,6 @@
       
       ! Multipatch variables 
       integer(INTEGER_TYPE) :: IPatch_Temporary
-      integer(INTEGER_TYPE), intent(in) :: IPatch
       integer(INTEGER_TYPE) :: aa
             
       ! Note that we need to use the derivative evaluated at the material point and not at the original gauss point.   

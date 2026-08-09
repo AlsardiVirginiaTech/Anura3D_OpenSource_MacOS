@@ -1197,8 +1197,8 @@
           integer(INTEGER_TYPE), intent(in) :: IPatch
           
           
-          BoxMinimum = 1.E200
-          BoxMaximum = -1.E200
+          BoxMinimum = 1.D200
+          BoxMaximum = -1.D200
 
           IDArea = GetAreaID(CheckArea)
           

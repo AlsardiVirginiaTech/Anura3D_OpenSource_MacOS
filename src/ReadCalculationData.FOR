@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
+    !   and soil–water–structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -4220,20 +4220,24 @@
 
         end subroutine WriteLogicInteger
 
-        integer(INTEGER_TYPE) function GetFeedbackLevel() result(res)
-        !**********************************************************************
-        !
-        ! Function:  It reads CalParams%FeedbackLevel
-        !
-        !**********************************************************************
-        use ModGlobalConstants, only: INTEGER_TYPE, REAL_TYPE
-        implicit none
-
-        res = CalParams%FeedbackLevel
-
-        end function GetFeedbackLevel
-
       end module ModReadCalculationData
+
+      integer(4) function GetFeedbackLevel() result(res)
+      !**********************************************************************
+      !
+      ! Function:  It reads CalParams%FeedbackLevel
+      !
+      !    gfortran workaround: kept as a free (non-module) function, matching
+      !    how ModFeedback calls it (declared external, to avoid a circular
+      !    use-dependency between ModFeedback and ModReadCalculationData).
+      !
+      !**********************************************************************
+      use ModReadCalculationData, only: CalParams
+      implicit none
+
+      res = CalParams%FeedbackLevel
+
+      end function GetFeedbackLevel
 
       
         
