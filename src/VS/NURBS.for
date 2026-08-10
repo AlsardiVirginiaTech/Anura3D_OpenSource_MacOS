@@ -2291,51 +2291,59 @@
             
         
         UniqueVector = 0.0
-            
-        
+
+
         ! it looks like we need to allocate the matrix first before we do anything else when it is allocatable
         ii = 1
-        
-        
-            
+
+        ! gfortran workaround: VectorSize can legitimately be 0 (e.g. the Zeta
+        ! knot direction for a 2D problem), in which case OriginalVector is a
+        ! zero-length array - accessing entry 1 unconditionally below is a
+        ! heap-buffer-overflow read (caught by AddressSanitizer).
+        if (VectorSize >= 1) then
+
         ! assign first entry of the vector to the unique vector
-        ! in this way the first entry of the vector is secured. 
+        ! in this way the first entry of the vector is secured.
         UniqueVector(1) = OriginalVector(1)
-        
-  
-            
-        ! establish counter 
+
+
+
+        ! establish counter
         counter = 2
-        
-        
-        
-            
-        do ii = 1, VectorSize-1 
-            ! check if the second entry is similar to the first one. 
-            if ( OriginalVector(ii) == OriginalVector(ii+1) ) then ! if the second entry is the same as the previous entry 
-                
-                
-                    !... do nothing 
-            
-            else 
-                
-                    !... if it is different, then write into out unique vector and increase counter 
-                
+
+
+
+
+        do ii = 1, VectorSize-1
+            ! check if the second entry is similar to the first one.
+            if ( OriginalVector(ii) == OriginalVector(ii+1) ) then ! if the second entry is the same as the previous entry
+
+
+                    !... do nothing
+
+            else
+
+                    !... if it is different, then write into out unique vector and increase counter
+
                     UniqueVector(counter) = OriginalVector(ii+1)
-                
-                
-                    ! increase counter 
+
+
+                    ! increase counter
                 counter = counter + 1
-            end if 
-            
-            
-        
-            
-        end do 
-        
+            end if
+
+
+
+
+        end do
+
         counter = counter - 1
-        
-        
+
+        else
+            counter = 0
+        end if
+
+
         end subroutine 
     
     

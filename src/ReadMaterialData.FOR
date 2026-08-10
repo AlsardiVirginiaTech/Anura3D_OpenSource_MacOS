@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
+    !   and soil–water–structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -993,16 +993,22 @@ end select
                     
                   call ReadString(FileUnit, BName, DumS) ! soil model DLL, $$SOIL_MODEL_DLL
                   MatParams(I)%SoilModelDLL = DumS
-                  
-                  ! initialise DLL
+
+                  if (trim(DumS) /= trim(ESM_PM4Sand_Model)) then
+                    ! initialise DLL
                     lib_handle = loadlibrary(trim(DumS)//char(0))
                     if (lib_handle == 0) call Error_NoDLL(DumS) ! error handling
 
-                  ! initialise UMAT  This is just for a check to see if no error
+                    ! initialise UMAT  This is just for a check to see if no error
                     p = GetProcAddress(lib_handle, ESM_SYMBOL) ! TODO: Check to see if multiple materials works ?
                     if (p == 0) call Error_NoUMAT(DumS) ! error handling
-                  
-                  MatParams(I)%SoilModelDLLHandle = lib_handle
+
+                    MatParams(I)%SoilModelDLLHandle = lib_handle
+                  else
+                    ! PM4Sand is compiled in statically (src/VS/PM4Sand.FOR); no DLL to load,
+                    ! dispatched directly in ModExternalSoilModel by SoilModelDLL name.
+                    MatParams(I)%SoilModelDLLHandle = 0
+                  end if
                   
                   call ReadString(FileUnit, BName, DumS) ! Umat Dimension, $$UMAT_DIMENSION
                   if (DumS=='2D_plane_strain') then

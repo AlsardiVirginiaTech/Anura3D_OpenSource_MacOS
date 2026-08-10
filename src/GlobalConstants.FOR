@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
+    !   and soil–water–structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -101,7 +101,7 @@
         integer(INTEGER_TYPE), parameter :: INITIAL_STEP = 1
         integer(INTEGER_TYPE), parameter :: MAXIMUM_STEP = 100000
         integer(INTEGER_TYPE), parameter :: ID_UNDEFINED = -1
-        integer(INTEGER_TYPE), parameter :: NSTATEVAR = 50
+        integer(INTEGER_TYPE), parameter :: NSTATEVAR = 114 ! PM4Sand needs up to 114 state variables (was 50, too small)
         integer(INTEGER_TYPE), parameter :: NPROPERTIES = 50
 
         real(REAL_TYPE), dimension(:), allocatable, protected :: DEFAULT_GRAVITY_DIRECTION 
@@ -210,6 +210,7 @@
         character(len=64), parameter :: ESM_FRICTIONAL_LIQUID = 'frictional_liquid'
         character(len=64), parameter :: ESM_RIGID_BODY = 'rigid_body'
         character(len=64), parameter :: ESM_ARB_Model = 'Arb_Model'
+        character(len=64), parameter :: ESM_PM4Sand_Model = 'PM4Sand' ! built-in model (src/VS/PM4Sand.FOR); no DLL needed
 		
        ! User-defined hydraulic model names
         character(len=64), parameter :: SWRC_VANGENUCHTEN = 'van_genuchten'

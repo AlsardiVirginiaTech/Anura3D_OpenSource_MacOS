@@ -111,14 +111,19 @@
             ! polymorphic (class) dummy This with an explicit PDT type-spec triggers
             ! a spurious "type incompatible with typespec" error; allocate a
             ! monomorphic local of the same concrete type instead and move_alloc it in.
+            ! Separately, a plain allocate(TempElements(N)) only sets the LEN type
+            ! parameter correctly on the first array element (gfortran-16 bug,
+            ! reproduced in isolation) - allocating from a scalar SOURCE= template
+            ! avoids it.
             type(TwoLayerElementType(NVECTOR)), dimension(:), allocatable :: TempElements
+            type(TwoLayerElementType(NVECTOR)) :: ElementTemplate
 
             if (.not.(NFORMULATION==2)) RETURN
 
             if (allocated(This%Elements)) then
               deallocate(This%Elements, stat = IError)
             end if
-            allocate(TempElements(Counters%Sum_NEl), stat = IError)
+            allocate(TempElements(Counters%Sum_NEl), source=ElementTemplate, stat = IError)
             TempElements(:)%ContainedMaterialTypes = ContainedMaterialTypeUNDEFINED
             TempElements(:)%ConcentrationRatioLiquidL = 0.0
             TempElements(:)%ConcentrationRatioSolidL = 0.0

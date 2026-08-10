@@ -63,14 +63,9 @@ file(GLOB ADDITIONAL_SOURCES
 list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "GlobalConstants")
 # WriteOutPut_GiD depends on the Windows-only gidpost library (no macOS build available)
 list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "WriteOutPut_GiD")
-# Not part of the Windows Anura3D.vfproj build (unused/orphaned modules, not referenced
-# by any other compiled file); stale relative to the current multipatch data layout.
-list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "MPMDYNConsolidation")
-list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "MPMDYNUnsatConsolidation")
-list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "MPMDynamicImplicit")
-# MPMQuasiStaticImplicit depends on ModSolver (src/Solver), which wraps the Intel MKL
-# Pardiso sparse solver (mkl_dss.f90). No MKL build exists for this platform.
-list(FILTER ADDITIONAL_SOURCES EXCLUDE REGEX "MPMQuasiStaticImplicit")
+# Note: MPMDYNConsolidation.FOR, MPMDYNUnsatConsolidation.FOR, MPMDynamicImplicit.FOR
+# and MPMQuasiStaticImplicit.FOR (Intel MKL-dependent) live in src/unused/ - the glob
+# above naturally excludes them, no regex filtering needed.
 list(APPEND ANURA3D_SOURCES ${ADDITIONAL_SOURCES})
 
 # Remove duplicates

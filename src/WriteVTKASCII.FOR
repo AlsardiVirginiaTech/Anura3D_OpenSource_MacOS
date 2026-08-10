@@ -96,7 +96,61 @@ module ModWriteVTKASCII
     write(VTKUnit,'(A,I8)')'POINT_DATA ',NumberMaterialPoints
 
     end subroutine InitialiseVTKFileASCII
-    
+
+    subroutine InitialiseVTKFileASCII_ControlPoints(NumberNodes, VTKFileName, IPatch)
+    !**********************************************************************
+    !
+    !    Function: initialise VTK files
+    !
+    ! I NumberNodes: Number of control point nodes
+    ! O VTKFileName: VTK output file name
+    !
+    !**********************************************************************
+    implicit none
+
+    integer(INTEGER_TYPE), intent(in) :: NumberNodes
+    character*(*), intent(in) :: VTKFileName
+    ! local variables
+    integer(INTEGER_TYPE) :: MaterialPointID
+    real(REAL_TYPE), dimension(3) :: NoCo = 0.0 ! dimension 3 as ParaView requires 3D data structure
+
+    ! Multipatch variables
+    integer(INTEGER_TYPE), intent(in) :: IPatch
+
+    ! open the VTK file for control point data
+
+    call FileOpen(VTKUnit, VTKFileName)
+
+    write(VTKUnit,'(A)') trim(VTK_VERSION) ! writing file version and identifier
+    write(VTKUnit,'(A)') trim(CalParams%FileNames%ProjectName) ! writing header
+    write(VTKUnit,'(A)') trim(ASCII_FORMAT) ! writing file format
+
+    ! writing dataset structure (defines geometry and topology of dataset)
+    write(VTKUnit,'(A)') 'DATASET UNSTRUCTURED_GRID'
+
+    write(VTKUnit,'(A,I8,A)') 'POINTS ',NumberNodes,' float'
+    do MaterialPointID = 1, NumberNodes ! loop over number of control point nodes
+        NoCo(1) = NodalCoordinates(MaterialPointID, 1, IPatch)
+        NoCo(2) = NodalCoordinates(MaterialPointID, 2, IPatch)
+        if (NDIM==3) NoCo(3) = NodalCoordinates(MaterialPointID, 3, IPatch) ! for 2D third coordinate is set equal to 0.0
+        write(VTKUnit,*) NoCo
+    end do
+
+    write(VTKUnit,'(A,2I8)')'CELLS ',NumberNodes,2*NumberNodes
+    do MaterialPointID = 1, NumberNodes ! loop over control point nodes
+        write(VTKUnit,'(A,I8)')'1',MaterialPointID-1 ! write "connectivities" of control points (note that the index has to be decreased by 1)
+    end do
+
+    write(VTKUnit,'(A,I8)')'CELL_TYPES ',NumberNodes
+    do MaterialPointID = 1, NumberNodes ! loop over control point nodes
+        write(VTKUnit,*)'1' ! i.e. specification for single point, VTK_VERTEX=1
+    end do
+
+    ! writing dataset attributes for control points (defines the actual dataset values)
+    write(VTKUnit,'(A,I8)')'POINT_DATA ',NumberNodes
+
+    end subroutine InitialiseVTKFileASCII_ControlPoints
+
     subroutine WriteVTKFloatScalarDataASCII(DataSetName,DataSetScalar)
     !**********************************************************************
     !

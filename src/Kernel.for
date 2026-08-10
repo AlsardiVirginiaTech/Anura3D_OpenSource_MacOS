@@ -90,7 +90,6 @@
       UserPressedKey = .false.
 
       !********** 1 - kernel initialisation ******************************
-      call InitialiseCalculationParameters() ! initialises the calculation paramters (CalParams)
       !call ReadGeometryParameters() ! read geometry data from GOM-file and assign data into GeoParams%...
       call InitialiseElementType() ! initialises the element type in global variables ! -> NURBS implementation
       call OpenTextOutputFiles() ! open TextOutputFiles

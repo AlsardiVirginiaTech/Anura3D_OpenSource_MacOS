@@ -8,7 +8,7 @@
       !
 	  !
 	  !	  Anura3D - Numerical modelling and simulation of large deformations 
-	  !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
+	  !   and soil–water–structure interaction using the material point method (MPM)
       !
 	  !	  Copyright (C) 2022  Members of the Anura3D MPM Research Community 
 	  !   (See Contributors file "Contributors.txt")
@@ -265,11 +265,16 @@
           real(REAL_TYPE), allocatable :: TempVelocityGasArray(:,:), TempAccelerationArray(:,:), TempMassArray(:), TempESMstatevArray(:,:), TempMassWaterArray(:)
  
           integer(INTEGER_TYPE) :: IError, I, NewParticleIndex, IErrorTemp
+          ! gfortran workaround: allocate(PDT_TYPE(len_params) :: Arr(N)) only sets
+          ! the LEN type parameters correctly on the first element of the array
+          ! (confirmed gfortran-16 bug); allocating from a scalar SOURCE= template
+          ! does not have this bug.
+          type(ParticleType(NTENSOR, NVECTOR, MAX_LOAD_SYSTEMS)) :: ParticleTemplate
 
 
           ! Allocate temporary copy of particle data
-          allocate(ParticleType(NTENSOR, NVECTOR, MAX_LOAD_SYSTEMS) :: TempParticles(Counters%NParticles), stat = IErrorTemp)
-          
+          allocate(TempParticles(Counters%NParticles), source=ParticleTemplate, stat = IErrorTemp)
+
           do i = 1, Counters%NParticles 
               call SetParticleStructureDefault(TempParticles(i))
           end do
@@ -364,7 +369,7 @@
           Counters%NParticles = Counters%NParticles + NUpdateParticles
 
           ! Create new particle data array
-          allocate(ParticleType(NTENSOR, NVECTOR, MAX_LOAD_SYSTEMS) :: Particles(Counters%NParticles), stat = IError)
+          allocate(Particles(Counters%NParticles), source=ParticleTemplate, stat = IError)
           do i = 1, Counters%NParticles 
             call SetParticleStructureDefault(Particles(i))
           end do

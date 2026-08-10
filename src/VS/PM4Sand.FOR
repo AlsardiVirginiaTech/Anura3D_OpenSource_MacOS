@@ -77,7 +77,7 @@
        real(REAL_TYPE), dimension(NTENS), intent(inout) :: STRESS ! final stress tensor
        real(REAL_TYPE), dimension(NTENS), intent(inout) :: DSTRAN ! strain increment
        
-       real(REAL_TYPE), dimension(NTENS,NTENS), intent(inout) :: EUNLOADING ! unloading elastic matrix
+       real(REAL_TYPE), intent(inout) :: EUNLOADING ! unloading stiffness (scalar, matching every other ESM implementation in this codebase)
        
         !---Local variables required in standard UMAT
         integer(INTEGER_TYPE) :: IStep, TimeStep

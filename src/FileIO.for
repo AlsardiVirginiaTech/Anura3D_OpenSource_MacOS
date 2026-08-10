@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
+    !   and soil–water–structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -139,6 +139,15 @@
 
           NameIn = Trim(FileName) // ' '
           call GetOrMakeFileName(NameIn, NameOut)
+          ! NOTE: VTK legacy binary format needs a raw, marker-free byte stream,
+          ! which ACCESS='SEQUENTIAL' does not provide (it wraps every write in
+          ! Fortran's own record-length markers). ACCESS='STREAM' is the
+          ! standards-correct fix, but triggers an intermittent gfortran-16/macOS
+          ! heap-corruption crash in this build (reproduced both with and without
+          ! CONVERT='BIG_ENDIAN'; timing-dependent, masked when run under a
+          ! debugger). Kept as SEQUENTIAL - see CalParams%IsVTKBinary default
+          ! (ReadCalculationData.FOR), switched to ASCII VTK output instead so
+          ! this unreliable binary path is not exercised.
           open(FileUnit, FILE = NameOut, FORM = 'UNFORMATTED', ACCESS = 'SEQUENTIAL', ACTION = 'WRITE', CONVERT = 'BIG_ENDIAN', IOSTAT = ios)
           call Assert( ios == 0, 'Error opening file: ' // trim(FileName) )
 

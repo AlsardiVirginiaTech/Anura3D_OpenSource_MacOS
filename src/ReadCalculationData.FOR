@@ -960,15 +960,14 @@
         CalParams%Multipliers%WaterASpaceDependency = 1.0
         
         ! MovingMeshType
+        ! NOTE: MeshAreas/NAreaNodes/NMovingMeshDirections/MovingMeshDirection/
+        ! NStorageAreas/StructureMaterialID/MovingMaterialID/NStructureNodes are
+        ! allocatable, sized per-patch by Counters%NPatches (multipatch
+        ! generalization) - not yet known at this point (before geometry is
+        ! read). Their allocation + defaults now live in
+        ! InitialiseMovingMeshData() (ReadGeometryData.FOR); assigning into them
+        ! here, unallocated, segfaults. Only allocate the parent here.
         ALLOCATE(MovingMeshType(NDIM)::CalParams%MovingMesh)
-        CalParams%MovingMesh%MeshAreas = 1
-        CalParams%MovingMesh%NAreaNodes = NDIM * (NDIM - 1) + 2
-        CalParams%MovingMesh%NMovingMeshDirections = 1
-        CalParams%MovingMesh%MovingMeshDirection = -1
-        CalParams%MovingMesh%NStorageAreas = 2
-        CalParams%MovingMesh%StructureMaterialID = -1
-        CalParams%MovingMesh%MovingMaterialID = -1
-        CalParams%MovingMesh%NStructureNodes = 0
         
         ! ParabolicTrajectoryType
         ALLOCATE(ParabolicTrajectoryType(NVECTOR)::CalParams%ParabolicTrajectory)
@@ -1233,7 +1232,11 @@
         CalParams%UseUniformMaterialPointWeight = .false.
         CalParams%ApplyInitialVelocityonMP = .false.
         CalParams%ApplyPartialSaturation = .false. 
-        CalParams%IsVTKBinary = .true.
+        ! Binary VTK output disabled on this platform: it requires ACCESS='STREAM'
+        ! (see FileIO.for FileOpenWriteBinary), which triggers an intermittent
+        ! gfortran-16/macOS heap-corruption crash. ASCII VTK output uses plain
+        ! formatted writes and has no such issue.
+        CalParams%IsVTKBinary = .false.
         CalParams%ApplySmootheningLiquidPressureIncrement = .false.
          
         ! strings

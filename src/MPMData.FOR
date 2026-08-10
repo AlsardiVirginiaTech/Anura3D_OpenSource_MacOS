@@ -8,7 +8,7 @@
     !
     !
 	!	Anura3D - Numerical modelling and simulation of large deformations 
-    !   and soilï¿½waterï¿½structure interaction using the material point method (MPM)
+    !   and soil–water–structure interaction using the material point method (MPM)
     !
     !	Copyright (C) 2022  Members of the Anura3D MPM Research Community 
     !   (See Contributors file "Contributors.txt")
@@ -882,20 +882,26 @@
           ! local variables
           integer(INTEGER_TYPE) :: IError
           integer(INTEGER_TYPE) :: I
-          
+          ! gfortran workaround: allocate(PDT_TYPE(len_params) :: Arr(N)) only sets
+          ! the LEN type parameters correctly on the first element of the array
+          ! (confirmed gfortran-16 bug, reproduced in isolation); every other
+          ! element gets zero-valued type parameters, corrupting its layout.
+          ! Allocating from a scalar SOURCE= template does not have this bug.
+          type(ParticleType(NTENSOR, NVECTOR, MAX_LOAD_SYSTEMS)) :: ParticleTemplate
+
           ! Multipatch variable
           integer(INTEGER_TYPE) :: IPatch_Temporary = 1
 
-          !allocate(EleParticlesHelp(Counters%NEl), stat = IError) ! I need to make this patch dependent         
+          !allocate(EleParticlesHelp(Counters%NEl), stat = IError) ! I need to make this patch dependent
           allocate(EleParticlesHelp(NURBS%Maximum_nel_NURBS,Counters%NPatches), stat = IError) ! I need to make this patch dependent
           EleParticlesHelp = -1
-          
+
           allocate(EleParticles(Counters%NParticles), stat = IError)
-          
+
           EleParticles = -1
-          
-          allocate(ParticleType(NTENSOR, NVECTOR, MAX_LOAD_SYSTEMS)::Particles(Counters%NParticles), stat = IError)
-          do i = 1, Counters%NParticles 
+
+          allocate(Particles(Counters%NParticles), source=ParticleTemplate, stat = IError)
+          do i = 1, Counters%NParticles
               call SetParticleStructureDefault(Particles(i))
           end do
           

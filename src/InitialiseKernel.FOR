@@ -92,12 +92,13 @@
       integer(INTEGER_TYPE) :: args ! number of command line arguments
           
 #ifdef __INTEL_COMPILER
-          args = nargs() 
+          args = nargs()  ! nargs() counts argv[0] too, so > 1 means "at least one real argument"
+          call Assert(args > 1, 'Kernel called without arguments. Specify project name.')
 #else
-          args = iargc()
+          args = iargc()  ! iargc() excludes argv[0], so > 0 means "at least one real argument"
+          call Assert(args > 0, 'Kernel called without arguments. Specify project name.')
 #endif
 
-      call Assert(args > 1, 'Kernel called without arguments. Specify project name.')
       call getarg(1, CalParams%FileNames%ProjectName)
       call GiveMessage(NEW_LINE('A') // 'Project name: ' // trim(CalParams%FileNames%ProjectName) )
 

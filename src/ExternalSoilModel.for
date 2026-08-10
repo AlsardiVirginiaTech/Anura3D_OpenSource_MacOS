@@ -43,6 +43,7 @@ use ModGlobalConstants
 use ModReadCalculationData
 use ModReadMaterialData
 use ModMPMInit
+use PM4Sand, only: ESM_AM_PM4SAND
 #ifdef __INTEL_COMPILER
 use user32
 use kernel32
@@ -195,17 +196,18 @@ implicit none
     props(5) = SIN(MatParams(IDSet)%DilatancyAngle*(Pi/180.0))
     props(6) = MatParams(IDSet)%TensileStrength
     cmname = UMAT_MOHR_COULOMB_STANDARD
-    endif          
-    ! initialise UMAT
-    p = GetProcAddress(MatParams(IDSet)%SoilModelDLLHandle, ESM_SYMBOL) ! Pointing to the ESM .dll 
-    !call ESM(IDpt, IDel, IDset, Stress, Eunloading, PlasticMultiplier, StrainIncr, NSTATEVAR, StateVar, nAddVar, AdditionalVar,cmname, NPROPERTIES, props, CalParams%NumberOfPhases, ntens)
-    
-    
-    if (NameModel == ESM_ARB_Model) then 
+    endif
+
+    if (NameModel == ESM_ARB_Model) then
         call ESM_AM(IDpt, IDel, IDset, Stress, Eunloading, PlasticMultiplier, StrainIncr, NSTATEVAR, StateVar, nAddVar, AdditionalVar,cmname, NPROPERTIES, props, CalParams%NumberOfPhases, ntens)
+    else if (trim(cmname) == trim(ESM_PM4Sand_Model)) then
+        ! PM4Sand is compiled in statically (src/VS/PM4Sand.FOR); no DLL to load/dispatch through.
+        call ESM_AM_PM4SAND(IDpt, IDel, IDset, Stress, Eunloading, PlasticMultiplier, StrainIncr, NSTATEVAR, StateVar, nAddVar, AdditionalVar,cmname, NPROPERTIES, props, CalParams%NumberOfPhases, ntens)
     else
+        ! initialise UMAT
+        p = GetProcAddress(MatParams(IDSet)%SoilModelDLLHandle, ESM_SYMBOL) ! Pointing to the ESM .dll
         call ESM(IDpt, IDel, IDset, Stress, Eunloading, PlasticMultiplier, StrainIncr, NSTATEVAR, StateVar, nAddVar, AdditionalVar,cmname, NPROPERTIES, props, CalParams%NumberOfPhases, ntens)
-    end if 
+    end if
     
     
     ! save unloading stiffness in Particles array  
@@ -2741,8 +2743,14 @@ end subroutine StressSolid
       end if
 
         SigPrin(4) = 0.0d0
-        SigPrin(5) = 0.0d0
-        SigPrin(6) = 0.0d0
+        ! gfortran workaround: SigPrin/Sig are declared dimension(6) (full 3D
+        ! Voigt notation) but the caller (CalculateInvariants et al.) passes an
+        ! NTENSOR-sized array - only 4 for a 2D analysis - so writing indices 5
+        ! and 6 unconditionally overflows it (caught by AddressSanitizer).
+        if (NTENSOR == 6) then
+          SigPrin(5) = 0.0d0
+          SigPrin(6) = 0.0d0
+        end if
 
       end subroutine CalculatePrincipalStresses
 

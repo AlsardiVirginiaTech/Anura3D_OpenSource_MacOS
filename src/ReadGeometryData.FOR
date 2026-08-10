@@ -519,8 +519,16 @@
               call SetFormulation(Formulation)
             
               
-              ! we need to know the maximum number of load systems 
-              NURBS%Maximum_NLoadSystems_Traction = maxval(NURBS%NLoadSystems_Traction)
+              ! we need to know the maximum number of load systems
+              ! gfortran workaround: max(1, ...) - when no traction load system is
+              ! defined anywhere (e.g. $$SOLID_TRACTION off), NLoadSystems_Traction
+              ! is all zeros and maxval is 0, zero-sizing every array dimensioned by
+              ! Maximum_NLoadSystems_Traction below; code elsewhere (e.g.
+              ! ConsolidationForces in MPMDYN2PhaseSP.FOR) unconditionally reads
+              ! slot 1 of those arrays regardless of whether any loads exist
+              ! (correctly reading 0 = "no load" there), so at least one slot must
+              ! always be allocated. Caught by AddressSanitizer as a heap-buffer-overflow.
+              NURBS%Maximum_NLoadSystems_Traction = max(1, maxval(NURBS%NLoadSystems_Traction))
               
 
               allocate( NURBS%NControlPoints_Traction(NURBS%Maximum_NLoadSystems_Traction, Counters%NPatches), stat = IError )
